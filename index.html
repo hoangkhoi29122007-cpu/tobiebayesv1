@@ -3,46 +3,393 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mô phỏng Xác suất có điều kiện &amp; Công thức Bayes (Tần số tự nhiên)</title>
-  <!-- Tải Tailwind CSS qua CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Tải phông chữ Inter hỗ trợ tiếng Việt sắc nét -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-          },
-        },
-      },
-    };
-  </script>
-
+  <title>TobieBayes — Mô phỏng Xác suất có điều kiện &amp; Công thức Bayes (Toán 12)</title>
   <style>
-    /* Thiết lập cơ bản và tối ưu hiển thị trình chiếu */
+    /* ==========================================================================
+       1. BIẾN MÀU SẮC HỌC THUẬT & THIẾT LẬP CƠ BẢN (100% SELF-CONTAINED CSS)
+       ========================================================================== */
+    :root {
+      --navy-900: #0f2557;
+      --navy-800: #1e3a8a;
+      --navy-700: #1d4ed8;
+      --navy-100: #dbeafe;
+      --navy-50: #eff6ff;
+
+      --teal-700: #0f766e;
+      --teal-600: #0d9488;
+      --teal-500: #14b8a6;
+      --teal-100: #ccfbf1;
+      --teal-50: #f0fdfa;
+
+      --amber-700: #b45309;
+      --amber-600: #d97706;
+      --amber-100: #fef3c7;
+      --amber-50: #fffbeb;
+
+      --rose-700: #be123c;
+      --rose-600: #e11d48;
+      --rose-100: #ffe4e6;
+      --rose-50: #fff1f2;
+
+      --indigo-700: #4338ca;
+      --indigo-600: #4f46e5;
+      --indigo-100: #e0e7ff;
+      --indigo-50: #eef2ff;
+
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background-color: #f8fafc;
-      color: #0f172a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Chế độ phóng to cỡ chữ khi trình chiếu trên lớp học THPT */
-    body.projector-mode {
-      font-size: 1.08rem;
+    /* ==========================================================================
+       2. HEADER & BANNER TỐI GIẢN, HIỆN ĐẠI
+       ========================================================================== */
+    .app-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
     }
 
-    /* Tùy chỉnh thanh trượt (Range Slider) hiện đại, dễ thao tác chuột và cảm ứng */
+    .container {
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(30, 58, 138, 0.16);
+    }
+
+    .brand-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .brand-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--navy-800);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--teal-50);
+      color: var(--teal-700);
+      border: 1px solid var(--teal-100);
+    }
+
+    .btn-reset {
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: #ffffff;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .btn-reset:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+    }
+
+    .header-banner {
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg, var(--navy-50) 0%, var(--teal-50) 100%);
+      border: 1px solid #bfdbfe;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--navy-900);
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+
+    .banner-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--teal-600);
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       3. BỐ CỤC 3 KHU VỰC THEO CHIỀU DỌC (THOÁNG ĐÃNG, KHÔNG RỐI MẮT)
+       ========================================================================== */
+    .main-flow {
+      padding: 24px 20px 44px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--navy-800);
+      color: #ffffff;
+    }
+
+    .section-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       4. KHU VỰC 1: LỰA CHỌN MÔ HÌNH, TÌNH HUỐNG THỰC TẾ & NÚT THU HẸP KHÔNG GIAN MẪU
+       ========================================================================== */
+    .segmented-control {
+      display: inline-flex;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .seg-btn {
+      padding: 9px 16px;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .seg-btn.active {
+      background: var(--navy-800);
+      color: #ffffff;
+      box-shadow: 0 2px 5px rgba(30, 58, 138, 0.22);
+    }
+
+    .seg-btn:not(.active):hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Danh sách tình huống mẫu */
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .scenario-card {
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border-subtle);
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .scenario-card:hover {
+      border-color: #93c5fd;
+      background: #f8fafc;
+    }
+
+    .scenario-card.active {
+      border-color: var(--navy-800);
+      background: var(--navy-50);
+    }
+
+    .scenario-card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 4px;
+    }
+
+    .scenario-card-meta {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    /* Hộp mô tả chi tiết đề bài */
+    .problem-box {
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      background: #f8fafc;
+      border-left: 4px solid var(--teal-600);
+      border-top: 1px solid var(--border-subtle);
+      border-right: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.92rem;
+      color: var(--text-main);
+      margin-bottom: 20px;
+    }
+
+    /* Bảng điều khiển thanh trượt thông số */
+    .controls-panel {
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+    }
+
+    .sample-n-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+      border-bottom: 1px dashed var(--border-strong);
+    }
+
+    .n-quick-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .n-chip {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      background: #ffffff;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .n-chip.active {
+      background: var(--teal-600);
+      border-color: var(--teal-600);
+      color: #ffffff;
+    }
+
+    .sliders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .slider-item {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+    }
+
+    .slider-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.84rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .slider-val-badge {
+      font-weight: 700;
+      color: var(--navy-800);
+      background: var(--navy-50);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+    }
+
     input[type="range"] {
       -webkit-appearance: none;
       appearance: none;
-      height: 8px;
+      width: 100%;
+      height: 6px;
       background: #e2e8f0;
-      border-radius: 9999px;
+      border-radius: 999px;
       outline: none;
       cursor: pointer;
     }
@@ -50,1356 +397,1260 @@
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
-      background: #2563eb;
-      border: 3px solid #ffffff;
-      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+      background: var(--navy-800);
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.3);
       cursor: pointer;
-      transition: transform 0.15s ease, background-color 0.15s ease;
-    }
-
-    input[type="range"]::-webkit-slider-thumb:hover {
-      transform: scale(1.12);
-      background: #1d4ed8;
     }
 
     input[type="range"]::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
-      background: #2563eb;
-      border: 3px solid #ffffff;
-      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+      background: var(--navy-800);
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.3);
       cursor: pointer;
     }
 
-    /* Hiệu ứng chuyển tiếp mượt mà cho các ô trong Lưới không gian mẫu */
-    .icon-cell {
-      transition: opacity 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
-      border-radius: 2px;
+    /* Nút bật/tắt trung tâm: Kích hoạt điều kiện B */
+    .condition-center-bar {
+      margin-top: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
     }
 
-    .icon-cell.dimmed {
-      opacity: 0.14;
-      transform: scale(0.86);
+    .btn-condition-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 26px;
+      border-radius: 999px;
+      border: 2px solid var(--navy-800);
+      background: #ffffff;
+      color: var(--navy-800);
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: all 0.22s ease;
     }
 
-    .icon-cell.highlighted {
-      opacity: 1;
-      transform: scale(1);
-      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.18);
+    .btn-condition-toggle:hover {
+      background: var(--navy-50);
+      transform: translateY(-1px);
     }
 
-    /* Hiệu ứng chuyển tiếp cho các nhánh trên Sơ đồ hình cây SVG */
-    .tree-group {
+    .btn-condition-toggle.active {
+      background: linear-gradient(135deg, var(--navy-800) 0%, var(--teal-700) 100%);
+      border-color: var(--teal-700);
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(13, 148, 136, 0.28);
+    }
+
+    .toggle-pill {
+      width: 42px;
+      height: 22px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      position: relative;
+      transition: background 0.22s ease;
+      flex-shrink: 0;
+    }
+
+    .toggle-pill::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      transition: transform 0.22s ease;
+    }
+
+    .btn-condition-toggle.active .toggle-pill {
+      background: var(--teal-500);
+    }
+
+    .btn-condition-toggle.active .toggle-pill::after {
+      transform: translateX(20px);
+    }
+
+    .condition-subtext {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ==========================================================================
+       5. KHU VỰC 2: BA CÁCH BIỂU DIỄN TẦN SỐ TỰ NHIÊN TRỰC QUAN
+       ========================================================================== */
+    .rep-top-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 920px) {
+      .rep-top-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rep-box {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      background: #ffffff;
+    }
+
+    .rep-label {
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--teal-700);
+      margin-bottom: 2px;
+    }
+
+    .rep-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    /* Cách 1: Biểu đồ khối diện tích tỉ lệ (Mosaic Area Chart) */
+    .area-chart-wrap {
+      width: 100%;
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+    }
+
+    .area-block {
+      transition: opacity 0.35s ease, stroke-width 0.2s ease;
+    }
+
+    .area-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    /* Cách 2: Bảng tần số hai chiều (Cột B và B̄) */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+    }
+
+    .freq-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    .freq-table th,
+    .freq-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      border-right: 1px solid var(--border-subtle);
+      transition: opacity 0.35s ease, background-color 0.35s ease;
+    }
+
+    .freq-table th:last-child,
+    .freq-table td:last-child {
+      border-right: none;
+    }
+
+    .freq-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .freq-table thead th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .freq-table td.row-header {
+      text-align: left;
+      font-weight: 700;
+      background: #f8fafc;
+      color: var(--text-main);
+    }
+
+    .freq-table tr.total-row td {
+      background: #f1f5f9;
+      font-weight: 800;
+      border-top: 2px solid var(--border-strong);
+    }
+
+    /* Hiệu ứng tô sáng cột B và làm mờ cột B̄ khi kích hoạt điều kiện B */
+    .col-b-highlight {
+      background-color: var(--teal-50) !important;
+      color: var(--navy-900) !important;
+      font-weight: 800 !important;
+      box-shadow: inset 2px 0 0 var(--teal-600), inset -2px 0 0 var(--teal-600);
+    }
+
+    .col-notb-dimmed {
+      opacity: 0.18;
+    }
+
+    /* Cách 3: Sơ đồ hình cây tần số tự nhiên */
+    .tree-scroll-box {
+      width: 100%;
+      overflow-x: auto;
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+    }
+
+    .tree-node-group {
       transition: opacity 0.35s ease;
     }
 
-    /* Kiểu dáng phân số toán học thuần HTML/CSS sắc nét */
-    .math-frac {
+    /* ==========================================================================
+       6. KHU VỰC 3: CHUYỂN ĐỔI TỪ TẦN SỐ TỰ NHIÊN SANG CÔNG THỨC XÁC SUẤT
+       ========================================================================== */
+    .conversion-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .conversion-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .conv-col {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      background: #f8fafc;
+    }
+
+    .conv-col.left-col {
+      border-top: 4px solid var(--teal-600);
+    }
+
+    .conv-col.right-col {
+      border-top: 4px solid var(--navy-800);
+    }
+
+    .conv-col-title {
+      font-size: 0.98rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .formula-card {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+
+    .formula-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .formula-caption {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .formula-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.94rem;
+      color: var(--text-main);
+      margin: 6px 0;
+    }
+
+    /* Phân số toán học thuần CSS chuẩn xác */
+    .frac {
       display: inline-flex;
       flex-direction: column;
       align-items: center;
       vertical-align: middle;
       margin: 0 4px;
-      line-height: 1.2;
+      line-height: 1.25;
+      font-weight: 600;
     }
 
-    .math-frac > span:first-child {
+    .frac > span:first-child {
       border-bottom: 1.5px solid currentColor;
-      padding: 0 5px 2px 5px;
+      padding: 0 6px 2px;
     }
 
-    .math-frac > span:last-child {
-      padding: 2px 5px 0 5px;
+    .frac > span:last-child {
+      padding: 2px 6px 0;
+    }
+
+    .result-pill {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 6px;
+      background: var(--teal-50);
+      border: 1px solid var(--teal-100);
+      color: var(--teal-700);
+      font-weight: 800;
+    }
+
+    .result-pill.navy {
+      background: var(--navy-50);
+      border-color: var(--navy-100);
+      color: var(--navy-800);
+    }
+
+    .app-footer {
+      text-align: center;
+      padding: 18px 20px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
+      background: #ffffff;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-  <!-- Thanh tiêu đề ứng dụng (Header) -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-start sm:items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-extrabold text-lg shrink-0 shadow-sm">
-          P
-        </div>
-        <div>
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-              Toán 12 • Chương trình GDPT 2018
-            </span>
-            <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-              Tiếp cận Tần số tự nhiên
-            </span>
+  <!-- ========================================================================
+       HEADER & BANNER GIỚI THIỆU ỨNG DỤNG TOBIEBAYES
+       ======================================================================== -->
+  <header class="app-header">
+    <div class="container">
+      <div class="header-top">
+        <div class="brand-group">
+          <!-- Logo hình học SVG đại diện cho không gian mẫu Ω được thu hẹp về điều kiện B -->
+          <svg class="brand-logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo TobieBayes">
+            <rect width="48" height="48" rx="12" fill="#1e3a8a" />
+            <!-- Khung không gian mẫu Ω mờ -->
+            <rect x="8" y="8" width="32" height="32" rx="6" fill="#ffffff" fill-opacity="0.14" stroke="#93c5fd" stroke-width="1.5" />
+            <!-- Vùng không gian mẫu thu hẹp B -->
+            <rect x="8" y="8" width="32" height="16" rx="5" fill="#0d9488" />
+            <!-- Giao A ∩ B được nhấn mạnh -->
+            <rect x="8" y="8" width="14" height="16" rx="5" fill="#f59e0b" />
+            <line x1="22" y1="8" x2="22" y2="40" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="2 2" />
+          </svg>
+
+          <div>
+            <div class="brand-title-row">
+              <h1 class="brand-name">TobieBayes</h1>
+              <span class="brand-tag">Toán 12 • GDPT 2018</span>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">
+              Công cụ trực quan hóa Xác suất có điều kiện &amp; Công thức Bayes
+            </p>
           </div>
-          <h1 class="text-base sm:text-xl font-bold text-slate-900 mt-1 leading-snug">
-            Mô phỏng Xác suất có điều kiện &amp; Công thức Bayes theo hướng Tần số tự nhiên (Natural Frequencies)
-          </h1>
         </div>
+
+        <button type="button" id="btnReset" class="btn-reset">Khôi phục mặc định</button>
       </div>
 
-      <!-- Công cụ hỗ trợ giáo viên trình chiếu trên lớp -->
-      <div class="flex items-center gap-2">
-        <button
-          id="btnProjectorMode"
-          type="button"
-          class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 active:scale-[0.99] transition flex items-center gap-1.5 shadow-sm"
-          title="Tăng kích thước hiển thị khi chiếu lên bảng tương tác hoặc máy chiếu"
-        >
-          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-          </svg>
-          <span id="projectorModeLabel">Chế độ trình chiếu</span>
-        </button>
-
-        <button
-          id="btnReset"
-          type="button"
-          class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-[0.99] transition"
-        >
-          Đặt lại mặc định
-        </button>
+      <!-- Banner giới thiệu súc tích mục đích ứng dụng -->
+      <div class="header-banner" role="region" aria-label="Giới thiệu ứng dụng">
+        <span class="banner-dot"></span>
+        <span>
+          Applet mô phỏng trực quan hóa quá trình chuyển đổi biểu diễn từ <strong>Tần số tự nhiên (Natural Frequencies)</strong> sang <strong>Công thức Xác suất có điều kiện</strong> và <strong>Công thức Bayes (Toán 12)</strong>.
+        </span>
       </div>
     </div>
   </header>
 
-  <!-- Nội dung chính -->
-  <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-5 space-y-5">
+  <!-- ========================================================================
+       NỘI DUNG CHÍNH: 3 KHU VỰC RÕ RÀNG THEO CHIỀU DỌC
+       ======================================================================== -->
+  <main class="container main-flow">
 
-    <!-- Khung hiển thị đề bài tình huống thực tiễn đang chọn -->
-    <section class="bg-gradient-to-r from-blue-50 via-indigo-50 to-sky-50 border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-sm">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div class="space-y-1">
-          <div class="flex items-center gap-2">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-            <h2 id="scenarioTitle" class="text-sm sm:text-base font-bold text-blue-950 uppercase tracking-wide">
-              Bài toán 1: Y khoa – Sàng lọc xét nghiệm bệnh X
-            </h2>
+    <!-- ======================================================================
+         KHU VỰC 1: LỰA CHỌN MÔ HÌNH & TÌNH HUỐNG THỰC TẾ
+         ====================================================================== -->
+    <section class="section-card" aria-labelledby="sec1-title">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-badge">Khu vực 1</span>
+          <h2 id="sec1-title" class="section-title">Lựa chọn mô hình &amp; Tình huống thực tế</h2>
+        </div>
+
+        <!-- Bộ chuyển đổi giữa Mô hình 2 biến cố và Mô hình 3 biến cố -->
+        <div class="segmented-control" role="tablist" aria-label="Chọn số lượng biến cố">
+          <button type="button" class="seg-btn active" data-model="2" role="tab" aria-selected="true">
+            Mô hình 2 biến cố (A và Ā)
+          </button>
+          <button type="button" class="seg-btn" data-model="3" role="tab" aria-selected="false">
+            Mô hình 3 biến cố (Hệ đầy đủ A₁, A₂, A₃)
+          </button>
+        </div>
+      </div>
+
+      <!-- Danh sách tình huống mẫu theo mô hình đã chọn -->
+      <div id="scenarioList" class="scenario-grid"></div>
+
+      <!-- Hộp hiển thị nội dung đề bài -->
+      <div id="problemDescription" class="problem-box"></div>
+
+      <!-- Bảng điều khiển quy mô mẫu N và các thanh trượt tham số -->
+      <div class="controls-panel">
+        <div class="sample-n-bar">
+          <div>
+            <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);">
+              Quy mô tập mẫu giả định (N):
+            </span>
+            <span id="nDisplayLabel" style="font-size: 0.88rem; font-weight: 800; color: var(--teal-700); margin-left: 6px;">
+              1.000 phần tử
+            </span>
           </div>
-          <p id="scenarioDescription" class="text-sm sm:text-base text-slate-700 leading-relaxed">
-            Một loại xét nghiệm bệnh X có tỉ lệ mắc bệnh trong cộng đồng là <strong class="text-slate-900">1%</strong>. Nếu một người mắc bệnh (biến cố <strong class="text-rose-700">A</strong>), xét nghiệm cho kết quả dương tính (biến cố <strong class="text-amber-700">B</strong>) với xác suất <strong class="text-slate-900">90%</strong>; nếu không mắc bệnh (<strong class="text-slate-700">Ā</strong>), xét nghiệm vẫn báo dương tính giả với xác suất <strong class="text-slate-900">5%</strong>. Xét một mẫu gồm <strong class="text-blue-700">N = 1000</strong> người, hãy tính xác suất người có kết quả dương tính thực sự mắc bệnh <strong class="text-blue-800">P(A|B)</strong>.
+
+          <div class="n-quick-group" id="nChipGroup">
+            <button type="button" class="n-chip active" data-n="1000">N = 1.000</button>
+            <button type="button" class="n-chip" data-n="2000">N = 2.000</button>
+            <button type="button" class="n-chip" data-n="5000">N = 5.000</button>
+          </div>
+        </div>
+
+        <!-- Các thanh trượt tỉ lệ phần trăm tự động sinh theo mô hình 2 hoặc 3 biến cố -->
+        <div id="slidersContainer" class="sliders-grid"></div>
+      </div>
+
+      <!-- Nút bật/tắt trung tâm kích hoạt điều kiện B -->
+      <div class="condition-center-bar">
+        <button type="button" id="btnToggleConditionB" class="btn-condition-toggle" aria-pressed="false">
+          <span class="toggle-pill" aria-hidden="true"></span>
+          <span>Kích hoạt điều kiện B (Thu hẹp không gian mẫu Ω → B)</span>
+        </button>
+        <p id="conditionHintText" class="condition-subtext">
+          Trạng thái hiện tại: Đang hiển thị toàn bộ không gian mẫu Ω. Nhấn nút trên để loại bỏ biến cố đối B̄.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         KHU VỰC 2: BA CÁCH BIỂU DIỄN TẦN SỐ TỰ NHIÊN TRỰC QUAN
+         ====================================================================== -->
+    <section class="section-card" aria-labelledby="sec2-title">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-badge" style="background: var(--teal-700);">Khu vực 2</span>
+          <h2 id="sec2-title" class="section-title">Ba cách biểu diễn Tần số tự nhiên trực quan</h2>
+        </div>
+        <span id="repStatusTag" style="font-size: 0.82rem; font-weight: 700; color: var(--navy-800); background: var(--navy-50); padding: 4px 12px; border-radius: 999px;">
+          Không gian mẫu đầy đủ Ω
+        </span>
+      </div>
+
+      <!-- Hàng trên: Cách 1 (Biểu đồ khối diện tích tỉ lệ) & Cách 2 (Bảng tần số hai chiều) -->
+      <div class="rep-top-grid">
+        <!-- Cách 1: Biểu đồ khối diện tích tỉ lệ -->
+        <div class="rep-box">
+          <div class="rep-label">Cách biểu diễn 1</div>
+          <h3 class="rep-title">Biểu đồ khối diện tích tỉ lệ</h3>
+          <div class="area-chart-wrap">
+            <svg id="areaChartSvg" viewBox="0 0 540 260" style="width: 100%; height: auto; display: block;" role="img" aria-label="Biểu đồ khối diện tích tỉ lệ"></svg>
+          </div>
+          <div id="areaLegend" class="area-legend"></div>
+        </div>
+
+        <!-- Cách 2: Bảng tần số hai chiều -->
+        <div class="rep-box">
+          <div class="rep-label">Cách biểu diễn 2</div>
+          <h3 id="tableCardTitle" class="rep-title">Bảng tần số hai chiều (2 × 2)</h3>
+          <div class="table-wrap">
+            <table id="freqTable" class="freq-table"></table>
+          </div>
+          <p id="tableNote" style="margin-top: 12px; font-size: 0.82rem; color: var(--text-secondary);">
+            Mỗi ô biểu diễn số đếm phần tử thực tế trong mẫu N. Cột <strong>B</strong> và cột <strong>B̄</strong> phân chia toàn bộ không gian mẫu.
           </p>
         </div>
-        <div class="shrink-0 bg-white/90 backdrop-blur border border-blue-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-700 space-y-1">
-          <div><span class="font-bold text-rose-600">Biến cố A:</span> <span id="labelEventA">Mắc bệnh X</span></div>
-          <div><span class="font-bold text-amber-600">Biến cố B:</span> <span id="labelEventB">Kết quả dương tính</span></div>
+      </div>
+
+      <!-- Hàng dưới: Cách 3 (Sơ đồ hình cây tần số tự nhiên) -->
+      <div class="rep-box">
+        <div class="rep-label">Cách biểu diễn 3</div>
+        <h3 class="rep-title">Sơ đồ hình cây tần số tự nhiên</h3>
+        <div class="tree-scroll-box">
+          <svg id="treeSvg" viewBox="0 0 920 310" style="width: 100%; min-width: 680px; height: auto; display: block;" role="img" aria-label="Sơ đồ hình cây tần số tự nhiên"></svg>
         </div>
       </div>
     </section>
 
-    <!-- Lưới làm việc 2 cột: Cột trái (Điều khiển sư phạm) - Cột phải (3 Biểu diễn liên kết + Cầu nối đại số) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-
-      <!-- CỘT TRÁI: BẢNG ĐIỀU KHIỂN THÔNG SỐ & HIỆU ỨNG THU HẸP KHÔNG GIAN MẪU -->
-      <aside class="lg:col-span-4 space-y-5">
-
-        <!-- 1. Chọn nhanh 3 bài toán thực tiễn chuẩn GDPT 2018 -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
-          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-extrabold">1</span>
-            Bài toán thực tiễn (GDPT 2018)
-          </h3>
-          <div class="grid grid-cols-1 gap-2.5" id="presetButtons">
-            <button
-              type="button"
-              data-preset="medical"
-              class="preset-btn text-left p-3 rounded-xl border-2 border-blue-600 bg-blue-50/70 transition"
-            >
-              <div class="font-bold text-sm text-blue-950">Bài toán 1: Y khoa – Xét nghiệm bệnh X</div>
-              <div class="text-xs text-slate-600 mt-0.5">N = 1000 • P(A) = 1% • P(B|A) = 90% • P(B|Ā) = 5%</div>
-            </button>
-
-            <button
-              type="button"
-              data-preset="quality"
-              class="preset-btn text-left p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition"
-            >
-              <div class="font-bold text-sm text-slate-800">Bài toán 2: Kiểm định chất lượng sản phẩm</div>
-              <div class="text-xs text-slate-500 mt-0.5">N = 1000 • P(A) = 2% • P(B|A) = 95% • P(B|Ā) = 4%</div>
-            </button>
-
-            <button
-              type="button"
-              data-preset="spam"
-              class="preset-btn text-left p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition"
-            >
-              <div class="font-bold text-sm text-slate-800">Bài toán 3: Bộ lọc thư rác Email</div>
-              <div class="text-xs text-slate-500 mt-0.5">N = 500 • P(A) = 20% • P(B|A) = 80% • P(B|Ā) = 10%</div>
-            </button>
-          </div>
+    <!-- ======================================================================
+         KHU VỰC 3: CHUYỂN ĐỔI BIỂU DIỄN TỪ TẦN SỐ TỰ NHIÊN SANG CÔNG THỨC XÁC SUẤT
+         ====================================================================== -->
+    <section class="section-card" aria-labelledby="sec3-title">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <span class="section-badge" style="background: var(--indigo-700);">Khu vực 3</span>
+          <h2 id="sec3-title" class="section-title">Chuyển đổi biểu diễn: Từ Tần số tự nhiên sang Công thức Xác suất</h2>
         </div>
-
-        <!-- 2. Trọng tâm sư phạm: Hiệu ứng Thu hẹp không gian mẫu -->
-        <div class="bg-white rounded-2xl border-2 border-indigo-200 p-4 sm:p-5 shadow-sm">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-sm font-bold text-indigo-950 uppercase tracking-wider flex items-center gap-2">
-              <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-extrabold">2</span>
-              Thu hẹp không gian mẫu
-            </h3>
-            <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">Trọng tâm</span>
-          </div>
-          <p class="text-xs text-slate-600 mb-3 leading-relaxed">
-            Chọn điều kiện đã biết để quan sát trực quan phần không gian mẫu bị loại bỏ đồng thời trên cả 3 biểu diễn:
-          </p>
-
-          <div class="space-y-2.5" id="conditionButtons">
-            <!-- Chế độ 1: Toàn bộ không gian mẫu Ω -->
-            <button
-              type="button"
-              data-mode="all"
-              class="cond-btn w-full text-left p-3 rounded-xl border-2 border-slate-800 bg-slate-900 text-white transition shadow-sm"
-            >
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-sm">Toàn bộ không gian mẫu Ω</span>
-                <span class="text-xs px-2 py-0.5 rounded bg-white/15 font-mono" id="badgeTotalN">N = 1000</span>
-              </div>
-              <p class="text-xs text-slate-300 mt-1">Hiển thị đầy đủ 4 nhóm biến cố sơ cấp trước khi có thông tin điều kiện.</p>
-            </button>
-
-            <!-- Chế độ 2: Kích hoạt điều kiện B -->
-            <button
-              type="button"
-              data-mode="condB"
-              class="cond-btn w-full text-left p-3 rounded-xl border border-slate-200 bg-white hover:bg-amber-50/50 text-slate-800 transition"
-            >
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-sm text-amber-800">Kích hoạt điều kiện B (Tính P(A|B))</span>
-                <span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-mono" id="badgeCountB">n(B) = 58,5</span>
-              </div>
-              <p class="text-xs text-slate-600 mt-1">Làm mờ toàn bộ phần tử thuộc <strong>B̄</strong>. Không gian mẫu thu hẹp chỉ còn lại hàng <strong>B</strong>.</p>
-            </button>
-
-            <!-- Chế độ 3: Kích hoạt điều kiện A -->
-            <button
-              type="button"
-              data-mode="condA"
-              class="cond-btn w-full text-left p-3 rounded-xl border border-slate-200 bg-white hover:bg-rose-50/50 text-slate-800 transition"
-            >
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-sm text-rose-800">Kích hoạt điều kiện A (Tính P(B|A))</span>
-                <span class="text-xs px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-mono" id="badgeCountA">n(A) = 10</span>
-              </div>
-              <p class="text-xs text-slate-600 mt-1">Làm mờ toàn bộ phần tử thuộc <strong>Ā</strong>. Đối chiếu trực quan sự khác biệt giữa P(A|B) và P(B|A).</p>
-            </button>
-          </div>
-        </div>
-
-        <!-- 3. Tùy chỉnh thông số bằng thanh trượt & ô nhập số -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
-          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-            <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-xs font-extrabold">3</span>
-            Tùy chỉnh thông số mẫu
-          </h3>
-
-          <!-- Quy mô mẫu N -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <label class="text-xs sm:text-sm font-semibold text-slate-700">Quy mô tập mẫu giả định (N)</label>
-              <span id="displayN" class="text-xs font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700">1000 phần tử</span>
-            </div>
-            <div class="grid grid-cols-4 gap-2" id="sampleSizeButtons">
-              <button type="button" data-n="100" class="n-btn py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition">100</button>
-              <button type="button" data-n="200" class="n-btn py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition">200</button>
-              <button type="button" data-n="500" class="n-btn py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition">500</button>
-              <button type="button" data-n="1000" class="n-btn py-2 rounded-xl text-xs sm:text-sm font-bold border-2 border-blue-600 bg-blue-50 text-blue-700 transition">1000</button>
-            </div>
-          </div>
-
-          <!-- Tham số P(A) -->
-          <div class="pt-1">
-            <div class="flex items-center justify-between gap-2 mb-1.5">
-              <label for="inputPA" class="text-xs sm:text-sm font-semibold text-slate-700">
-                Xác suất tiên nghiệm <span class="text-rose-600 font-bold">P(A)</span> (%)
-              </label>
-              <div class="flex items-center gap-1">
-                <input
-                  id="inputPA"
-                  type="number"
-                  min="0.5"
-                  max="95"
-                  step="0.5"
-                  value="1"
-                  class="w-20 px-2.5 py-1 text-right text-sm font-bold border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span class="text-xs font-bold text-slate-500">%</span>
-              </div>
-            </div>
-            <input id="sliderPA" type="range" min="0.5" max="95" step="0.5" value="1" class="w-full" />
-          </div>
-
-          <!-- Tham số P(B|A) -->
-          <div class="pt-1">
-            <div class="flex items-center justify-between gap-2 mb-1.5">
-              <label for="inputPBA" class="text-xs sm:text-sm font-semibold text-slate-700">
-                Xác suất có điều kiện <span class="text-emerald-700 font-bold">P(B|A)</span> (%)
-              </label>
-              <div class="flex items-center gap-1">
-                <input
-                  id="inputPBA"
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value="90"
-                  class="w-20 px-2.5 py-1 text-right text-sm font-bold border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span class="text-xs font-bold text-slate-500">%</span>
-              </div>
-            </div>
-            <input id="sliderPBA" type="range" min="0" max="100" step="1" value="90" class="w-full" />
-          </div>
-
-          <!-- Tham số P(B|Ā) -->
-          <div class="pt-1">
-            <div class="flex items-center justify-between gap-2 mb-1.5">
-              <label for="inputPBnA" class="text-xs sm:text-sm font-semibold text-slate-700">
-                Xác suất có điều kiện <span class="text-amber-700 font-bold">P(B|Ā)</span> (%)
-              </label>
-              <div class="flex items-center gap-1">
-                <input
-                  id="inputPBnA"
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value="5"
-                  class="w-20 px-2.5 py-1 text-right text-sm font-bold border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span class="text-xs font-bold text-slate-500">%</span>
-              </div>
-            </div>
-            <input id="sliderPBnA" type="range" min="0" max="100" step="1" value="5" class="w-full" />
-          </div>
-        </div>
-      </aside>
-
-      <!-- CỘT PHẢI: KHU VỰC TRỰC QUAN HÓA ĐA BIỂU DIỄN ĐỒNG BỘ & CẦU NỐI ĐẠI SỐ -->
-      <div class="lg:col-span-8 space-y-5">
-
-        <!-- HÀNG 1: BIỂU DIỄN A (LƯỚI KHÔNG GIAN MẪU) & BIỂU DIỄN B (BẢNG TẦN SỐ 2x2) -->
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
-
-          <!-- BIỂU DIỄN A: LƯỚI KHÔNG GIAN MẪU TRỰC QUAN (ICON ARRAY) -->
-          <section class="xl:col-span-7 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <div>
-                  <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Biểu diễn A • Trực quan số đếm</span>
-                  <h3 class="text-base font-bold text-slate-900">Lưới không gian mẫu (Icon Array)</h3>
-                </div>
-                <span id="gridStatusBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
-                  Đang hiển thị toàn bộ Ω
-                </span>
-              </div>
-
-              <!-- Nhãn trục không gian trực quan -->
-              <div class="flex justify-between text-[11px] font-semibold text-slate-500 mb-1 px-1">
-                <span>← Nhóm A (<span id="gridLabelA">10</span>)</span>
-                <span>Nhóm Ā (<span id="gridLabelnA">990</span>) →</span>
-              </div>
-
-              <!-- Khung chứa lưới các ô vuông phần tử -->
-              <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                <div id="iconArrayContainer" class="grid gap-[2px] w-full" aria-label="Lưới trực quan không gian mẫu"></div>
-              </div>
-            </div>
-
-            <!-- Chú thích 4 nhóm biến cố giao kèm số lượng tần số tự nhiên -->
-            <div class="mt-3.5 pt-3 border-t border-slate-100">
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <div id="legendAB" class="flex items-center justify-between p-2 rounded-lg bg-rose-50/70 border border-rose-200 transition">
-                  <div class="flex items-center gap-2">
-                    <span class="w-3.5 h-3.5 rounded-sm bg-rose-500 shrink-0"></span>
-                    <span class="font-semibold text-slate-800">A ∩ B</span>
-                  </div>
-                  <span id="countAB" class="font-bold text-rose-700">9</span>
-                </div>
-
-                <div id="legendnAB" class="flex items-center justify-between p-2 rounded-lg bg-amber-50/70 border border-amber-200 transition">
-                  <div class="flex items-center gap-2">
-                    <span class="w-3.5 h-3.5 rounded-sm bg-amber-500 shrink-0"></span>
-                    <span class="font-semibold text-slate-800">Ā ∩ B</span>
-                  </div>
-                  <span id="countnAB" class="font-bold text-amber-700">49,5</span>
-                </div>
-
-                <div id="legendAnB" class="flex items-center justify-between p-2 rounded-lg bg-sky-50/70 border border-sky-200 transition">
-                  <div class="flex items-center gap-2">
-                    <span class="w-3.5 h-3.5 rounded-sm bg-sky-400 shrink-0"></span>
-                    <span class="font-semibold text-slate-800">A ∩ B̄</span>
-                  </div>
-                  <span id="countAnB" class="font-bold text-sky-700">1</span>
-                </div>
-
-                <div id="legendnAnB" class="flex items-center justify-between p-2 rounded-lg bg-slate-100/80 border border-slate-200 transition">
-                  <div class="flex items-center gap-2">
-                    <span class="w-3.5 h-3.5 rounded-sm bg-slate-300 shrink-0"></span>
-                    <span class="font-semibold text-slate-700">Ā ∩ B̄</span>
-                  </div>
-                  <span id="countnAnB" class="font-bold text-slate-700">940,5</span>
-                </div>
-              </div>
-              <p id="roundingNote" class="text-[11px] text-slate-500 mt-2 hidden italic"></p>
-            </div>
-          </section>
-
-          <!-- BIỂU DIỄN B: BẢNG TẦN SỐ HAI CHIỀU (2x2) -->
-          <section class="xl:col-span-5 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
-            <div>
-              <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Biểu diễn B • Bảng thống kê</span>
-              <h3 class="text-base font-bold text-slate-900 mb-3">Bảng tần số hai chiều (2 × 2)</h3>
-
-              <div class="overflow-x-auto rounded-xl border border-slate-200">
-                <table class="w-full text-xs sm:text-sm text-center border-collapse">
-                  <thead>
-                    <tr class="bg-slate-100 text-slate-800 border-b border-slate-200">
-                      <th class="p-2.5 text-left font-bold">Biến cố</th>
-                      <th id="thColA" class="p-2.5 font-bold text-rose-700 transition">A</th>
-                      <th id="thColnA" class="p-2.5 font-bold text-slate-600 transition">Ā</th>
-                      <th class="p-2.5 font-bold text-slate-900 bg-slate-200/60">Tổng hàng</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-slate-200">
-                    <!-- Hàng B -->
-                    <tr id="rowB" class="transition duration-300">
-                      <td class="p-2.5 text-left font-bold text-amber-800 bg-amber-50/40">B</td>
-                      <td id="cellAB" class="p-2.5 font-extrabold text-rose-700 bg-rose-50/50 transition">9</td>
-                      <td id="cellnAB" class="p-2.5 font-bold text-amber-700 bg-amber-50/50 transition">49,5</td>
-                      <td id="cellTotalB" class="p-2.5 font-extrabold text-slate-900 bg-slate-100/80 transition">58,5</td>
-                    </tr>
-
-                    <!-- Hàng B̄ -->
-                    <tr id="rownB" class="transition duration-300">
-                      <td class="p-2.5 text-left font-bold text-slate-600 bg-slate-50/60">B̄</td>
-                      <td id="cellAnB" class="p-2.5 font-semibold text-sky-700 bg-sky-50/40 transition">1</td>
-                      <td id="cellnAnB" class="p-2.5 font-semibold text-slate-600 transition">940,5</td>
-                      <td id="cellTotalnB" class="p-2.5 font-bold text-slate-700 bg-slate-100/80 transition">941,5</td>
-                    </tr>
-
-                    <!-- Hàng Tổng cột -->
-                    <tr class="bg-slate-100/90 font-bold text-slate-900 border-t-2 border-slate-300">
-                      <td class="p-2.5 text-left">Tổng cột</td>
-                      <td id="cellTotalA" class="p-2.5 text-rose-800 transition">10</td>
-                      <td id="cellTotalnA" class="p-2.5 text-slate-700 transition">990</td>
-                      <td id="cellGrandTotal" class="p-2.5 text-blue-700 font-extrabold bg-blue-50">1000</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Gợi ý đọc bảng theo trạng thái thu hẹp -->
-            <div id="tablePedagogyHint" class="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed">
-              <strong>Cách đọc bảng:</strong> Mỗi ô biểu thị số lượng phần tử thực tế trong mẫu <span class="font-semibold">N</span>. Hãy thử nhấn <em>"Kích hoạt điều kiện B"</em> để thấy hàng <strong>B̄</strong> bị loại bỏ.
-            </div>
-          </section>
-        </div>
-
-        <!-- HÀNG 2: BIỂU DIỄN C — SƠ ĐỒ HÌNH CÂY (SVG TREE DIAGRAM) -->
-        <section class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <div>
-              <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Biểu diễn C • Phân nhánh xác suất</span>
-              <h3 class="text-base font-bold text-slate-900">Sơ đồ hình cây kết hợp Tần số tự nhiên &amp; Xác suất nhánh</h3>
-            </div>
-            <div class="flex items-center gap-3 text-xs text-slate-600">
-              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Số đếm tần số tự nhiên</span>
-              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Xác suất trên nhánh</span>
-            </div>
-          </div>
-
-          <!-- Khung SVG vẽ sơ đồ cây đáp ứng đa kích thước màn hình -->
-          <div class="w-full overflow-x-auto bg-slate-50/70 border border-slate-200 rounded-xl p-2">
-            <svg id="treeSvg" viewBox="0 0 820 280" class="w-full h-auto min-w-[600px]" role="img" aria-label="Sơ đồ hình cây xác suất có điều kiện">
-              <!-- Định nghĩa mũi tên và hiệu ứng -->
-              <defs>
-                <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
-                  <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.08" />
-                </filter>
-              </defs>
-
-              <!-- TẦNG 1: NHÁNH TỪ GỐC Ω ĐẾN A VÀ Ā -->
-              <g id="treeBranchA" class="tree-group">
-                <path d="M 135 140 C 210 140, 220 72, 295 72" fill="none" stroke="#e11d48" stroke-width="2.5" />
-                <rect x="172" y="82" width="76" height="22" rx="6" fill="#fff1f2" stroke="#fecdd3" />
-                <text id="svgProbA" x="210" y="97" text-anchor="middle" font-size="12" font-weight="700" fill="#be123c">P(A) = 1%</text>
-              </g>
-
-              <g id="treeBranchNotA" class="tree-group">
-                <path d="M 135 140 C 210 140, 220 208, 295 208" fill="none" stroke="#64748b" stroke-width="2.5" />
-                <rect x="170" y="176" width="80" height="22" rx="6" fill="#f1f5f9" stroke="#cbd5e1" />
-                <text id="svgProbNotA" x="210" y="191" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">P(Ā) = 99%</text>
-              </g>
-
-              <!-- TẦNG 2: NHÁNH TỪ A ĐẾN A∩B VÀ A∩B̄ -->
-              <g id="treeBranchAB" class="tree-group">
-                <path d="M 435 72 C 505 72, 515 36, 585 36" fill="none" stroke="#e11d48" stroke-width="2.5" />
-                <rect x="462" y="28" width="94" height="21" rx="6" fill="#fff1f2" stroke="#fecdd3" />
-                <text id="svgProbBgivenA" x="509" y="42" text-anchor="middle" font-size="11.5" font-weight="700" fill="#be123c">P(B|A) = 90%</text>
-              </g>
-
-              <g id="treeBranchAnB" class="tree-group">
-                <path d="M 435 72 C 505 72, 515 104, 585 104" fill="none" stroke="#0284c7" stroke-width="2" stroke-dasharray="4 3" />
-                <rect x="462" y="92" width="94" height="21" rx="6" fill="#f0f9ff" stroke="#bae6fd" />
-                <text id="svgProbnBgivenA" x="509" y="106" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0369a1">P(B̄|A) = 10%</text>
-              </g>
-
-              <!-- TẦNG 2: NHÁNH TỪ Ā ĐẾN Ā∩B VÀ Ā∩B̄ -->
-              <g id="treeBranchnAB" class="tree-group">
-                <path d="M 435 208 C 505 208, 515 174, 585 174" fill="none" stroke="#d97706" stroke-width="2.5" />
-                <rect x="462" y="164" width="94" height="21" rx="6" fill="#fffbeb" stroke="#fde68a" />
-                <text id="svgProbBgivenNotA" x="509" y="178" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b45309">P(B|Ā) = 5%</text>
-              </g>
-
-              <g id="treeBranchnAnB" class="tree-group">
-                <path d="M 435 208 C 505 208, 515 242, 585 242" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3" />
-                <rect x="462" y="230" width="94" height="21" rx="6" fill="#f8fafc" stroke="#cbd5e1" />
-                <text id="svgProbnBgivenNotA" x="509" y="244" text-anchor="middle" font-size="11.5" font-weight="600" fill="#475569">P(B̄|Ā) = 95%</text>
-              </g>
-
-              <!-- NÚT GỐC: KHÔNG GIAN MẪU Ω -->
-              <g filter="url(#cardShadow)">
-                <rect x="15" y="112" width="120" height="56" rx="12" fill="#1e293b" />
-                <text x="75" y="135" text-anchor="middle" font-size="12" font-weight="600" fill="#94a3b8">Mẫu giả định Ω</text>
-                <text id="svgNodeN" x="75" y="156" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">N = 1000</text>
-              </g>
-
-              <!-- NÚT TẦNG 1: A VÀ Ā -->
-              <g id="treeNodeA" class="tree-group" filter="url(#cardShadow)">
-                <rect x="295" y="46" width="140" height="52" rx="12" fill="#ffffff" stroke="#f43f5e" stroke-width="2" />
-                <text x="365" y="67" text-anchor="middle" font-size="12" font-weight="700" fill="#be123c">Biến cố A</text>
-                <text id="svgNodeCountA" x="365" y="87" text-anchor="middle" font-size="14" font-weight="800" fill="#0f172a">n(A) = 10</text>
-              </g>
-
-              <g id="treeNodeNotA" class="tree-group" filter="url(#cardShadow)">
-                <rect x="295" y="182" width="140" height="52" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2" />
-                <text x="365" y="203" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">Biến cố Ā</text>
-                <text id="svgNodeCountNotA" x="365" y="223" text-anchor="middle" font-size="14" font-weight="800" fill="#0f172a">n(Ā) = 990</text>
-              </g>
-
-              <!-- 4 NÚT LÁ TẦNG 2 -->
-              <!-- Lá 1: A ∩ B -->
-              <g id="treeLeafAB" class="tree-group" filter="url(#cardShadow)">
-                <rect x="585" y="12" width="220" height="48" rx="11" fill="#fff1f2" stroke="#e11d48" stroke-width="2" />
-                <text x="600" y="32" font-size="12" font-weight="700" fill="#be123c">A ∩ B</text>
-                <text id="svgLeafAB" x="792" y="33" text-anchor="end" font-size="14" font-weight="800" fill="#be123c">9 phần tử</text>
-                <text id="svgLeafProbAB" x="600" y="50" font-size="11" fill="#881337">P(A ∩ B) = 0,90%</text>
-              </g>
-
-              <!-- Lá 2: A ∩ B̄ -->
-              <g id="treeLeafAnB" class="tree-group" filter="url(#cardShadow)">
-                <rect x="585" y="80" width="220" height="48" rx="11" fill="#f0f9ff" stroke="#38bdf8" stroke-width="1.8" />
-                <text x="600" y="100" font-size="12" font-weight="700" fill="#0369a1">A ∩ B̄</text>
-                <text id="svgLeafAnB" x="792" y="101" text-anchor="end" font-size="14" font-weight="800" fill="#0369a1">1 phần tử</text>
-                <text id="svgLeafProbAnB" x="600" y="118" font-size="11" fill="#0c4a6e">P(A ∩ B̄) = 0,10%</text>
-              </g>
-
-              <!-- Lá 3: Ā ∩ B -->
-              <g id="treeLeaftnAB" class="tree-group" filter="url(#cardShadow)">
-                <rect x="585" y="150" width="220" height="48" rx="11" fill="#fffbeb" stroke="#f59e0b" stroke-width="2" />
-                <text x="600" y="170" font-size="12" font-weight="700" fill="#b45309">Ā ∩ B</text>
-                <text id="svgLeafnAB" x="792" y="171" text-anchor="end" font-size="14" font-weight="800" fill="#b45309">49,5 phần tử</text>
-                <text id="svgLeafProbnAB" x="600" y="188" font-size="11" fill="#78350f">P(Ā ∩ B) = 4,95%</text>
-              </g>
-
-              <!-- Lá 4: Ā ∩ B̄ -->
-              <g id="treeLeafnAnB" class="tree-group" filter="url(#cardShadow)">
-                <rect x="585" y="218" width="220" height="48" rx="11" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.8" />
-                <text x="600" y="238" font-size="12" font-weight="700" fill="#475569">Ā ∩ B̄</text>
-                <text id="svgLeafnAnB" x="792" y="239" text-anchor="end" font-size="14" font-weight="800" fill="#334155">940,5 phần tử</text>
-                <text id="svgLeafProbnAnB" x="600" y="256" font-size="11" fill="#64748b">P(Ā ∩ B̄) = 94,05%</text>
-              </g>
-            </svg>
-          </div>
-        </section>
-
-        <!-- HÀNG 3: BƯỚC 3 — CHUYỂN ĐỔI BIỂU DIỄN SANG CÔNG THỨC HÌNH THỨC (CẦU NỐI ĐẠI SỐ) -->
-        <section class="bg-white rounded-2xl border-2 border-blue-200 p-4 sm:p-5 shadow-sm">
-          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <div>
-              <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Bước 3 • Cầu nối đại số</span>
-              <h3 class="text-base sm:text-lg font-bold text-slate-900">Chuyển đổi từ Tần số tự nhiên sang Công thức hình thức</h3>
-            </div>
-
-            <!-- Nút bật/tắt Ẩn/Hiện công thức để giáo viên cho học sinh tự suy luận trước -->
-            <button
-              id="btnToggleFormula"
-              type="button"
-              class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.99] transition shadow-sm flex items-center gap-2"
-            >
-              <svg id="eyeIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-              </svg>
-              <span id="toggleFormulaText">Ẩn công thức đại số</span>
-            </button>
-          </div>
-
-          <!-- Khung gợi ý suy luận khi giáo viên đang tạm ẩn công thức -->
-          <div id="formulaHiddenPlaceholder" class="hidden p-5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 space-y-2">
-            <div class="font-bold text-sm sm:text-base flex items-center gap-2">
-              <span>💡 Hoạt động suy luận dành cho học sinh:</span>
-            </div>
-            <p class="text-xs sm:text-sm leading-relaxed">
-              Quan sát số đếm tần số tự nhiên trên <strong>Lưới không gian mẫu</strong> và <strong>Bảng 2 × 2</strong> ở trên:
-              Tổng số phần tử thỏa mãn điều kiện <strong>B</strong> là <strong id="hintCountB">58,5</strong>, trong đó số phần tử thuộc cả <strong>A và B</strong> là <strong id="hintCountAB">9</strong>.
-              Hãy tự lập tỉ số tính <strong>P(A|B)</strong> và viết biểu thức tổng quát trước khi giáo viên mở công thức đối chiếu!
-            </p>
-          </div>
-
-          <!-- Khung hiển thị đầy đủ 3 bước chuyển đổi & Hộp đối chiếu P(A|B) vs P(B|A) -->
-          <div id="formulaContent" class="space-y-4">
-            <!-- 3 bước chuyển đổi biểu diễn -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-              <!-- Bước 3.1: Tỉ số đếm tần số tự nhiên -->
-              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
-                <div>
-                  <div class="text-xs font-bold text-blue-700 uppercase mb-1.5">1. Tỉ số tần số tự nhiên</div>
-                  <div class="text-sm text-slate-800 overflow-x-auto py-1">
-                    P(A|B) =
-                    <span class="math-frac font-semibold">
-                      <span>n(A ∩ B)</span>
-                      <span>n(B)</span>
-                    </span>
-                    =
-                    <span class="math-frac font-semibold">
-                      <span id="f1Num">9</span>
-                      <span id="f1Den">9 + 49,5</span>
-                    </span>
-                  </div>
-                </div>
-                <div class="mt-2 pt-2 border-t border-slate-200 text-xs sm:text-sm font-extrabold text-blue-800">
-                  Kết quả: <span id="f1Res">15,38%</span>
-                </div>
-              </div>
-
-              <!-- Bước 3.2: Công thức xác suất có điều kiện -->
-              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
-                <div>
-                  <div class="text-xs font-bold text-indigo-700 uppercase mb-1.5">2. Công thức xác suất có điều kiện</div>
-                  <div class="text-sm text-slate-800 overflow-x-auto py-1">
-                    P(A|B) =
-                    <span class="math-frac font-semibold">
-                      <span>P(A ∩ B)</span>
-                      <span>P(B)</span>
-                    </span>
-                    =
-                    <span class="math-frac font-semibold">
-                      <span id="f2Num">0,0090</span>
-                      <span id="f2Den">0,0585</span>
-                    </span>
-                  </div>
-                </div>
-                <div class="mt-2 pt-2 border-t border-slate-200 text-xs sm:text-sm font-extrabold text-indigo-800">
-                  Chia cả tử và mẫu cho N = <span id="f2N">1000</span>
-                </div>
-              </div>
-
-              <!-- Bước 3.3: Công thức Bayes đầy đủ -->
-              <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 flex flex-col justify-between">
-                <div>
-                  <div class="text-xs font-bold text-blue-900 uppercase mb-1.5">3. Công thức Bayes đầy đủ</div>
-                  <div class="text-xs sm:text-sm text-slate-900 overflow-x-auto py-1">
-                    P(A|B) =
-                    <span class="math-frac font-semibold">
-                      <span>P(A) · P(B|A)</span>
-                      <span>P(A)·P(B|A) + P(Ā)·P(B|Ā)</span>
-                    </span>
-                  </div>
-                </div>
-                <div class="mt-2 pt-2 border-t border-blue-200 text-xs sm:text-sm font-extrabold text-blue-900">
-                  = <span id="f3Res">0,1538 (15,38%)</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Hộp đối chiếu nhanh P(A|B) và P(B|A) phá bỏ ngộ nhận đảo ngược điều kiện -->
-            <div class="p-4 rounded-xl bg-gradient-to-r from-rose-50/80 via-white to-amber-50/80 border border-slate-200">
-              <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">
-                  ⚖️ Đối chiếu chống ngộ nhận đảo ngược điều kiện: P(A|B) ≠ P(B|A)
-                </span>
-                <span class="text-[11px] text-slate-500">Nhấn vào từng thẻ để thu hẹp không gian mẫu tương ứng</span>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <!-- Thẻ P(A|B) -->
-                <button
-                  type="button"
-                  id="quickCompareAB"
-                  class="text-left p-3 rounded-xl bg-white border-2 border-amber-300 hover:border-amber-500 transition shadow-sm"
-                >
-                  <div class="flex items-center justify-between">
-                    <span class="font-bold text-sm text-amber-900">Xác suất hậu nghiệm P(A|B)</span>
-                    <span id="compareValAB" class="text-base font-extrabold text-amber-700">15,38%</span>
-                  </div>
-                  <p id="compareDescAB" class="text-xs text-slate-600 mt-1">
-                    Trong <strong>58,5</strong> trường hợp xảy ra <strong>B</strong>, chỉ có <strong>9</strong> trường hợp thuộc <strong>A</strong> (mẫu số là n(B)).
-                  </p>
-                </button>
-
-                <!-- Thẻ P(B|A) -->
-                <button
-                  type="button"
-                  id="quickCompareBA"
-                  class="text-left p-3 rounded-xl bg-white border-2 border-rose-300 hover:border-rose-500 transition shadow-sm"
-                >
-                  <div class="flex items-center justify-between">
-                    <span class="font-bold text-sm text-rose-900">Xác suất điều kiện thuận P(B|A)</span>
-                    <span id="compareValBA" class="text-base font-extrabold text-rose-700">90%</span>
-                  </div>
-                  <p id="compareDescBA" class="text-xs text-slate-600 mt-1">
-                    Trong <strong>10</strong> trường hợp thuộc <strong>A</strong>, có tới <strong>9</strong> trường hợp xảy ra <strong>B</strong> (mẫu số là n(A)).
-                  </p>
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
       </div>
-    </div>
+
+      <div class="conversion-grid">
+        <!-- Cột trái: Tính theo số đếm Tần số tự nhiên -->
+        <div class="conv-col left-col">
+          <h3 class="conv-col-title">1. Tính theo số đếm Tần số tự nhiên</h3>
+          <div id="naturalCalcContainer"></div>
+        </div>
+
+        <!-- Cột phải: Khái quát hóa Công thức Xác suất -->
+        <div class="conv-col right-col">
+          <h3 class="conv-col-title">2. Khái quát hóa Công thức Xác suất</h3>
+          <div id="formalFormulaContainer"></div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <!-- Chân trang -->
-  <footer class="bg-white border-t border-slate-200 mt-6 py-3.5 px-4 text-center text-xs text-slate-500">
-    Applet hỗ trợ dạy học Toán 12 (Chương VI: Xác suất có điều kiện) • Thiết kế phục vụ nghiên cứu khoa học giáo dục
+  <footer class="app-footer">
+    TobieBayes • Applet dạy học chủ đề "Xác suất có điều kiện" (Toán 12 – Chương trình GDPT 2018)
   </footer>
 
-  <!-- MÃ NGUỒN XỬ LÝ TÍNH TOÁN & ĐỒNG BỘ HÓA ĐA BIỂU DIỄN -->
+  <!-- ========================================================================
+       MÃ JAVASCRIPT XỬ LÝ TOÁN HỌC, SVG ĐỘNG & ĐỒNG BỘ 3 BIỂU DIỄN
+       ======================================================================== -->
   <script>
     /**
-     * Dữ liệu 3 bài toán thực tiễn chuẩn Chương trình GDPT 2018 môn Toán lớp 12
+     * Kho tình huống thực tế chuẩn số nguyên cho Mô hình 2 biến cố và Mô hình 3 biến cố
      */
-    const SCENARIOS = {
-      medical: {
-        title: 'Bài toán 1: Y khoa – Sàng lọc xét nghiệm bệnh X',
-        description:
-          'Một loại xét nghiệm bệnh X có tỉ lệ mắc bệnh trong cộng đồng là <strong class="text-slate-900">1%</strong>. Nếu một người mắc bệnh (biến cố <strong class="text-rose-700">A</strong>), xét nghiệm cho kết quả dương tính (biến cố <strong class="text-amber-700">B</strong>) với xác suất <strong class="text-slate-900">90%</strong>; nếu không mắc bệnh (<strong class="text-slate-700">Ā</strong>), xét nghiệm vẫn báo dương tính giả với xác suất <strong class="text-slate-900">5%</strong>. Xét mẫu <strong class="text-blue-700">N = 1000</strong> người, hãy tính xác suất người có kết quả dương tính thực sự mắc bệnh <strong class="text-blue-800">P(A|B)</strong>.',
-        eventA: 'Mắc bệnh X',
-        eventB: 'Xét nghiệm dương tính',
-        N: 1000,
-        pA: 1,
-        pBA: 90,
-        pBnA: 5,
-      },
-      quality: {
-        title: 'Bài toán 2: Kiểm định chất lượng sản phẩm công nghiệp',
-        description:
-          'Một dây chuyền sản xuất có tỉ lệ phế phẩm là <strong class="text-slate-900">2%</strong> (biến cố <strong class="text-rose-700">A</strong>). Hệ thống cảm biến tự động phát hiện đúng phế phẩm (báo lỗi – biến cố <strong class="text-amber-700">B</strong>) với xác suất <strong class="text-slate-900">95%</strong>, nhưng cũng báo nhầm sản phẩm đạt chuẩn (<strong class="text-slate-700">Ā</strong>) thành lỗi với xác suất <strong class="text-slate-900">4%</strong>. Xét lô hàng <strong class="text-blue-700">N = 1000</strong> sản phẩm, tính xác suất một sản phẩm bị cảm biến báo lỗi thực sự là phế phẩm <strong class="text-blue-800">P(A|B)</strong>.',
-        eventA: 'Sản phẩm là phế phẩm',
-        eventB: 'Cảm biến báo lỗi',
-        N: 1000,
-        pA: 2,
-        pBA: 95,
-        pBnA: 4,
-      },
-      spam: {
-        title: 'Bài toán 3: Bộ lọc thư rác (Spam Filter) Email',
-        description:
-          'Trong hộp thư đến của người dùng có <strong class="text-slate-900">20%</strong> là thư rác (biến cố <strong class="text-rose-700">A</strong>). Thống kê cho thấy <strong class="text-slate-900">80%</strong> thư rác có chứa từ khóa "Khuyến mãi" (biến cố <strong class="text-amber-700">B</strong>), trong khi chỉ có <strong class="text-slate-900">10%</strong> thư thường (<strong class="text-slate-700">Ā</strong>) chứa từ khóa này. Xét mẫu <strong class="text-blue-700">N = 500</strong> email, tính xác suất một email chứa từ khóa "Khuyến mãi" thực sự là thư rác <strong class="text-blue-800">P(A|B)</strong>.',
-        eventA: 'Email là thư rác',
-        eventB: 'Chứa từ khóa "Khuyến mãi"',
-        N: 500,
-        pA: 20,
-        pBA: 80,
-        pBnA: 10,
-      },
+    const PRESETS = {
+      2: [
+        {
+          id: 'm2_medical',
+          title: 'Bài toán 1: Xét nghiệm y khoa sàng lọc bệnh',
+          meta: 'N = 1.000 người • P(A) = 2% • P(B|A) = 90% • P(B|Ā) = 5%',
+          desc: 'Một loại xét nghiệm bệnh X có tỉ lệ mắc bệnh trong cộng đồng là <strong>2%</strong> (biến cố <strong>A</strong>). Nếu một người mắc bệnh, xét nghiệm cho kết quả dương tính (biến cố <strong>B</strong>) với xác suất <strong>90%</strong>; nếu không mắc bệnh (<strong>Ā</strong>), xét nghiệm vẫn báo dương tính giả với xác suất <strong>5%</strong>. Xét mẫu <strong>N = 1.000</strong> người, tính xác suất người có kết quả dương tính thực sự mắc bệnh <strong>P(A|B)</strong>.',
+          N: 1000,
+          events: [
+            { code: 'A', name: 'Mắc bệnh (A)', prior: 2, condB: 90, colorB: '#e11d48', colorNotB: '#fda4af' },
+            { code: 'Ā', name: 'Không mắc bệnh (Ā)', prior: 98, condB: 5, colorB: '#d97706', colorNotB: '#cbd5e1' }
+          ],
+          labelB: 'Dương tính (B)',
+          labelNotB: 'Âm tính (B̄)'
+        },
+        {
+          id: 'm2_spam',
+          title: 'Bài toán 2: Bộ lọc thư rác Email tự động',
+          meta: 'N = 1.000 thư • P(A) = 20% • P(B|A) = 85% • P(B|Ā) = 10%',
+          desc: 'Trong hộp thư đến có <strong>20%</strong> là thư rác (biến cố <strong>A</strong>). Thống kê cho thấy <strong>85%</strong> thư rác có chứa từ khóa "Khuyến mãi" (biến cố <strong>B</strong>), trong khi chỉ có <strong>10%</strong> thư thường (<strong>Ā</strong>) chứa từ khóa này. Xét mẫu <strong>N = 1.000</strong> thư, tính xác suất một thư chứa từ khóa "Khuyến mãi" thực sự là thư rác <strong>P(A|B)</strong>.',
+          N: 1000,
+          events: [
+            { code: 'A', name: 'Thư rác (A)', prior: 20, condB: 85, colorB: '#e11d48', colorNotB: '#fda4af' },
+            { code: 'Ā', name: 'Thư thường (Ā)', prior: 80, condB: 10, colorB: '#d97706', colorNotB: '#cbd5e1' }
+          ],
+          labelB: 'Có từ khóa (B)',
+          labelNotB: 'Không từ khóa (B̄)'
+        }
+      ],
+      3: [
+        {
+          id: 'm3_factory',
+          title: 'Bài toán 1: Kiểm định sản phẩm 3 phân xưởng',
+          meta: 'N = 1.000 sp • PX I: 50% (2% lỗi) • PX II: 30% (3% lỗi) • PX III: 20% (5% lỗi)',
+          desc: 'Một nhà máy có 3 phân xưởng cùng sản xuất một loại linh kiện: Phân xưởng I (<strong>A₁</strong>) chiếm <strong>50%</strong> sản lượng với tỉ lệ phế phẩm (<strong>B</strong>) là <strong>2%</strong>; Phân xưởng II (<strong>A₂</strong>) chiếm <strong>30%</strong> sản lượng với tỉ lệ phế phẩm <strong>3%</strong>; Phân xưởng III (<strong>A₃</strong>) chiếm <strong>20%</strong> sản lượng với tỉ lệ phế phẩm <strong>5%</strong>. Lấy ngẫu nhiên một sản phẩm bị phế phẩm từ lô <strong>N = 1.000</strong> sản phẩm, tính xác suất sản phẩm đó do từng phân xưởng sản xuất.',
+          N: 1000,
+          events: [
+            { code: 'A₁', name: 'Phân xưởng I (A₁)', prior: 50, condB: 2, colorB: '#1d4ed8', colorNotB: '#93c5fd' },
+            { code: 'A₂', name: 'Phân xưởng II (A₂)', prior: 30, condB: 3, colorB: '#0d9488', colorNotB: '#99f6e4' },
+            { code: 'A₃', name: 'Phân xưởng III (A₃)', prior: 20, condB: 5, colorB: '#d97706', colorNotB: '#fde68a' }
+          ],
+          labelB: 'Phế phẩm (B)',
+          labelNotB: 'Đạt chuẩn (B̄)'
+        },
+        {
+          id: 'm3_study',
+          title: 'Bài toán 2: Hiệu quả 3 phương pháp học tập',
+          meta: 'N = 1.000 HS • Tự học: 20% (15% giỏi) • Truyền thống: 50% (30% giỏi) • Mô phỏng: 30% (60% giỏi)',
+          desc: 'Khảo sát <strong>N = 1.000</strong> học sinh lớp 12 theo 3 nhóm phương pháp ôn tập: Nhóm tự học (<strong>A₁</strong>) chiếm <strong>20%</strong> có <strong>15%</strong> đạt điểm giỏi (<strong>B</strong>); Nhóm học truyền thống (<strong>A₂</strong>) chiếm <strong>50%</strong> có <strong>30%</strong> đạt giỏi; Nhóm học kết hợp mô phỏng (<strong>A₃</strong>) chiếm <strong>30%</strong> có <strong>60%</strong> đạt giỏi. Chọn ngẫu nhiên một học sinh đạt điểm giỏi, tính xác suất học sinh đó thuộc từng nhóm phương pháp.',
+          N: 1000,
+          events: [
+            { code: 'A₁', name: 'Tự học (A₁)', prior: 20, condB: 15, colorB: '#1d4ed8', colorNotB: '#93c5fd' },
+            { code: 'A₂', name: 'Truyền thống (A₂)', prior: 50, condB: 30, colorB: '#0d9488', colorNotB: '#99f6e4' },
+            { code: 'A₃', name: 'Kết hợp mô phỏng (A₃)', prior: 30, condB: 60, colorB: '#d97706', colorNotB: '#fde68a' }
+          ],
+          labelB: 'Đạt giỏi (B)',
+          labelNotB: 'Chưa đạt giỏi (B̄)'
+        }
+      ]
     };
 
     /**
-     * Trạng thái toàn cục của ứng dụng mô phỏng
+     * Trạng thái toàn cục của ứng dụng
      */
-    const state = {
-      preset: 'medical',
+    const appState = {
+      modelCount: 2,          // 2 hoặc 3 biến cố
+      presetIndex: 0,         // 0 hoặc 1
       N: 1000,
-      pA: 1,       // %
-      pBA: 90,     // %
-      pBnA: 5,     // %
-      condMode: 'all', // 'all' | 'condB' | 'condA'
-      showFormula: true,
-      projectorMode: false,
+      events: [],             // Mảng cấu hình các biến cố A_i
+      labelB: 'Biến cố B',
+      labelNotB: 'Biến cố B̄',
+      descHtml: '',
+      conditionBActive: false // Trạng thái bật/tắt thu hẹp không gian mẫu Ω -> B
     };
 
     /**
-     * Định dạng số theo chuẩn ký hiệu Toán học Việt Nam (dấu phẩy thập phân, bỏ số 0 thừa)
+     * Định dạng số đẹp chuẩn Việt Nam (dấu phẩy thập phân, bỏ số 0 thừa)
      */
-    function fmt(num, decimals = 2) {
-      if (!Number.isFinite(num)) return '0';
-      const rounded = Number(num.toFixed(decimals));
-      return rounded.toString().replace('.', ',');
+    function fmtNum(val, maxDec = 2) {
+      if (!Number.isFinite(val)) return '0';
+      const rounded = Number(val.toFixed(maxDec));
+      return rounded.toLocaleString('vi-VN', { maximumFractionDigits: maxDec });
     }
 
     /**
-     * Thuật toán làm tròn số dư lớn nhất (Hamilton's Method)
-     * Đảm bảo tổng số ô vuông hiển thị trực quan trên lưới luôn bằng chính xác N
+     * Nạp tình huống mẫu vào appState
      */
-    function allocateVisualCells(exactCounts, totalN) {
-      const floors = exactCounts.map((val) => Math.floor(val));
-      const remainders = exactCounts.map((val, idx) => ({
-        idx,
-        rem: val - floors[idx],
-      }));
-      let diff = totalN - floors.reduce((sum, v) => sum + v, 0);
-      remainders.sort((a, b) => b.rem - a.rem);
-      for (let i = 0; i < diff; i++) {
-        floors[remainders[i].idx] += 1;
-      }
-      return floors;
+    function applyPreset(modelCount, presetIndex) {
+      const preset = PRESETS[modelCount][presetIndex];
+      appState.modelCount = modelCount;
+      appState.presetIndex = presetIndex;
+      appState.N = preset.N;
+      appState.events = preset.events.map((ev) => ({ ...ev }));
+      appState.labelB = preset.labelB;
+      appState.labelNotB = preset.labelNotB;
+      appState.descHtml = preset.desc;
+      renderAll();
     }
 
     /**
-     * Tính toán toàn bộ các đại lượng tần số tự nhiên và xác suất từ tham số đầu vào
+     * Tính toán toàn bộ tần số tự nhiên và xác suất từ appState
      */
-    function computeModel() {
-      const N = state.N;
-      const pA = state.pA / 100;
-      const pnA = 1 - pA;
-      const pBA = state.pBA / 100;
-      const pnBA = 1 - pBA;
-      const pBnA = state.pBnA / 100;
-      const pnBnA = 1 - pBnA;
+    function calculateMetrics() {
+      const N = appState.N;
+      const rows = appState.events.map((ev) => {
+        const pAi = ev.prior / 100;
+        const pBgivenAi = ev.condB / 100;
+        const pNotBgivenAi = 1 - pBgivenAi;
 
-      // Tần số tự nhiên (số đếm trên tập mẫu N)
-      const nA = N * pA;
-      const nnA = N * pnA;
-      const nAB = nA * pBA;
-      const nAnB = nA * pnBA;
-      const nnAB = nnA * pBnA;
-      const nnAnB = nnA * pnBnA;
-      const nB = nAB + nnAB;
-      const nnB = nAnB + nnAnB;
+        const nAi = N * pAi;
+        const nAiB = nAi * pBgivenAi;
+        const nAiNotB = nAi * pNotBgivenAi;
 
-      // Xác suất giao và xác suất hậu nghiệm
-      const pAB = pA * pBA;
-      const pAnB = pA * pnBA;
-      const pnAB = pnA * pBnA;
-      const pnAnB = pnA * pnBnA;
-      const pB = pAB + pnAB;
+        const pAiB = pAi * pBgivenAi;
+        const pAiNotB = pAi * pNotBgivenAi;
 
-      // P(A|B) và P(B|A)
-      const pAgivenB = nB > 0 ? nAB / nB : null;
-      const pBgivenA = nA > 0 ? nAB / nA : null;
+        return {
+          ...ev,
+          pAi,
+          pBgivenAi,
+          pNotBgivenAi,
+          nAi,
+          nAiB,
+          nAiNotB,
+          pAiB,
+          pAiNotB
+        };
+      });
 
-      return {
-        N,
-        pA,
-        pnA,
-        pBA,
-        pnBA,
-        pBnA,
-        pnBnA,
-        nA,
-        nnA,
-        nAB,
-        nAnB,
-        nnAB,
-        nnAnB,
-        nB,
-        nnB,
-        pAB,
-        pAnB,
-        pnAB,
-        pnAnB,
-        pB,
-        pAgivenB,
-        pBgivenA,
-      };
+      const nB = rows.reduce((sum, r) => sum + r.nAiB, 0);
+      const nNotB = rows.reduce((sum, r) => sum + r.nAiNotB, 0);
+      const pB = rows.reduce((sum, r) => sum + r.pAiB, 0);
+
+      rows.forEach((r) => {
+        r.pAigivenB = nB > 0 ? r.nAiB / nB : 0;
+      });
+
+      return { N, rows, nB, nNotB, pB };
     }
 
     /**
-     * Dựng lại Lưới không gian mẫu trực quan (Icon Array) khi thay đổi dữ liệu
-     * Sắp xếp không gian 2D thông minh: Nhóm A nằm bên trái, Ā bên phải;
-     * Trong mỗi nhóm, phần tử thuộc B xếp phía trên, B̄ xếp phía dưới.
+     * Render Khu vực 1: Danh sách tình huống, mô tả và thanh trượt điều chỉnh
      */
-    function renderIconArray(m) {
-      const container = document.getElementById('iconArrayContainer');
-      const N = m.N;
+    function renderSection1() {
+      // Cập nhật Segmented Control
+      document.querySelectorAll('.seg-btn').forEach((btn) => {
+        const isAct = Number(btn.dataset.model) === appState.modelCount;
+        btn.classList.toggle('active', isAct);
+        btn.setAttribute('aria-selected', String(isAct));
+      });
 
-      // Xác định số hàng và số cột cân đối theo quy mô mẫu N
-      let rows = 20;
-      let cols = 50;
-      if (N === 100) {
-        rows = 10;
-        cols = 10;
-      } else if (N === 200) {
-        rows = 10;
-        cols = 20;
-      } else if (N === 500) {
-        rows = 20;
-        cols = 25;
-      }
+      // Render thẻ bài toán mẫu
+      const listEl = document.getElementById('scenarioList');
+      listEl.innerHTML = PRESETS[appState.modelCount]
+        .map(
+          (item, idx) => `
+          <button type="button" class="scenario-card ${idx === appState.presetIndex ? 'active' : ''}" data-idx="${idx}">
+            <div class="scenario-card-title">${item.title}</div>
+            <div class="scenario-card-meta">${item.meta}</div>
+          </button>
+        `
+        )
+        .join('');
 
-      container.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+      listEl.querySelectorAll('.scenario-card').forEach((card) => {
+        card.addEventListener('click', () => {
+          applyPreset(appState.modelCount, Number(card.dataset.idx));
+        });
+      });
 
-      // Quy đổi số đếm sang số ô nguyên vẹn tổng bằng N
-      const [vAB, vAnB, vnAB, vnAnB] = allocateVisualCells(
-        [m.nAB, m.nAnB, m.nnAB, m.nnAnB],
-        N
-      );
+      // Render mô tả bài toán
+      document.getElementById('problemDescription').innerHTML = appState.descHtml;
 
-      // Ghi chú nếu có làm tròn số lẻ thập phân trên lưới ô
-      const hasDecimal = [m.nAB, m.nAnB, m.nnAB, m.nnAnB].some(
-        (v) => Math.abs(v - Math.round(v)) > 0.01
-      );
-      const roundingNote = document.getElementById('roundingNote');
-      if (hasDecimal) {
-        roundingNote.classList.remove('hidden');
-        roundingNote.textContent = `* Lưới trực quan làm tròn nguyên số ô (A∩B: ${vAB}, Ā∩B: ${vnAB}, A∩B̄: ${vAnB}, Ā∩B̄: ${vnAnB}) để bảo toàn đúng ${N} phần tử.`;
+      // Render hiển thị quy mô mẫu N
+      document.getElementById('nDisplayLabel').textContent = `${fmtNum(appState.N, 0)} phần tử`;
+      document.querySelectorAll('.n-chip').forEach((chip) => {
+        chip.classList.toggle('active', Number(chip.dataset.n) === appState.N);
+      });
+
+      // Render các thanh trượt thông số
+      const slidersEl = document.getElementById('slidersContainer');
+      if (appState.modelCount === 2) {
+        const evA = appState.events[0];
+        const evNotA = appState.events[1];
+        slidersEl.innerHTML = `
+          <div class="slider-item">
+            <div class="slider-label-row">
+              <span>Tỉ lệ P(${evA.code}) / P(${evNotA.code})</span>
+              <span class="slider-val-badge">${fmtNum(evA.prior)}% / ${fmtNum(evNotA.prior)}%</span>
+            </div>
+            <input type="range" id="slPrior2" min="1" max="95" step="1" value="${evA.prior}" />
+          </div>
+          <div class="slider-item">
+            <div class="slider-label-row">
+              <span>Xác suất P(B|${evA.code})</span>
+              <span class="slider-val-badge">${fmtNum(evA.condB)}%</span>
+            </div>
+            <input type="range" id="slCondB0" min="0" max="100" step="1" value="${evA.condB}" />
+          </div>
+          <div class="slider-item">
+            <div class="slider-label-row">
+              <span>Xác suất P(B|${evNotA.code})</span>
+              <span class="slider-val-badge">${fmtNum(evNotA.condB)}%</span>
+            </div>
+            <input type="range" id="slCondB1" min="0" max="100" step="1" value="${evNotA.condB}" />
+          </div>
+        `;
+
+        document.getElementById('slPrior2').addEventListener('input', (e) => {
+          const val = Number(e.target.value);
+          appState.events[0].prior = val;
+          appState.events[1].prior = 100 - val;
+          updateDynamicViews();
+        });
+        document.getElementById('slCondB0').addEventListener('input', (e) => {
+          appState.events[0].condB = Number(e.target.value);
+          updateDynamicViews();
+        });
+        document.getElementById('slCondB1').addEventListener('input', (e) => {
+          appState.events[1].condB = Number(e.target.value);
+          updateDynamicViews();
+        });
       } else {
-        roundingNote.classList.add('hidden');
+        // Mô hình 3 biến cố: 3 thanh trượt P(B|Ai) và 2 thanh trượt tỉ lệ phân bổ P(A1), P(A2) tự cân bằng P(A3)
+        slidersEl.innerHTML = appState.events
+          .map(
+            (ev, idx) => `
+            <div class="slider-item">
+              <div class="slider-label-row">
+                <span>P(${ev.code}) = ${fmtNum(ev.prior)}% • P(B|${ev.code})</span>
+                <span class="slider-val-badge">${fmtNum(ev.condB)}%</span>
+              </div>
+              <input type="range" class="sl-cond3" data-idx="${idx}" min="0" max="100" step="1" value="${ev.condB}" />
+              ${
+                idx < 2
+                  ? `<div style="margin-top:8px; font-size:0.76rem; color:var(--text-muted);">Điều chỉnh tỉ trọng P(${ev.code}):</div>
+                     <input type="range" class="sl-prior3" data-idx="${idx}" min="5" max="80" step="5" value="${ev.prior}" />`
+                  : `<div style="margin-top:10px; font-size:0.76rem; color:var(--teal-700); font-weight:600;">P(A₃) = 100% − P(A₁) − P(A₂) = ${fmtNum(ev.prior)}%</div>`
+              }
+            </div>
+          `
+          )
+          .join('');
+
+        slidersEl.querySelectorAll('.sl-cond3').forEach((sl) => {
+          sl.addEventListener('input', (e) => {
+            const idx = Number(e.target.dataset.idx);
+            appState.events[idx].condB = Number(e.target.value);
+            updateDynamicViews();
+          });
+        });
+
+        slidersEl.querySelectorAll('.sl-prior3').forEach((sl) => {
+          sl.addEventListener('input', (e) => {
+            const idx = Number(e.target.dataset.idx);
+            let newVal = Number(e.target.value);
+            const otherIdx = idx === 0 ? 1 : 0;
+            const otherVal = appState.events[otherIdx].prior;
+            if (newVal + otherVal > 95) {
+              newVal = 95 - otherVal;
+              e.target.value = newVal;
+            }
+            appState.events[idx].prior = newVal;
+            appState.events[2].prior = 100 - newVal - otherVal;
+            updateDynamicViews();
+          });
+        });
       }
 
-      // Tạo mảng kiểu ô theo thứ tự cột (A trước, Ā sau)
-      const cellTypes = [];
-      for (let i = 0; i < vAB; i++) cellTypes.push('AB');
-      for (let i = 0; i < vAnB; i++) cellTypes.push('AnB');
-      for (let i = 0; i < vnAB; i++) cellTypes.push('nAB');
-      for (let i = 0; i < vnAnB; i++) cellTypes.push('nAnB');
+      // Cập nhật trạng thái nút Kích hoạt điều kiện B
+      const btnCond = document.getElementById('btnToggleConditionB');
+      btnCond.classList.toggle('active', appState.conditionBActive);
+      btnCond.setAttribute('aria-pressed', String(appState.conditionBActive));
 
-      // Chuyển từ chỉ số cột-hàng sang chỉ số lưới CSS (hàng-cột)
-      const gridData = new Array(N);
-      for (let col = 0; col < cols; col++) {
-        for (let row = 0; row < rows; row++) {
-          const colMajorIdx = col * rows + row;
-          const rowMajorIdx = row * cols + col;
-          gridData[rowMajorIdx] = cellTypes[colMajorIdx] || 'nAnB';
-        }
-      }
+      document.getElementById('conditionHintText').textContent = appState.conditionBActive
+        ? 'Trạng thái hiện tại: ĐÃ KÍCH HOẠT điều kiện B. Toàn bộ phần tử thuộc B̄ đã được làm mờ.'
+        : 'Trạng thái hiện tại: Đang hiển thị toàn bộ không gian mẫu Ω. Nhấn nút trên để loại bỏ biến cố đối B̄.';
 
-      const colorMap = {
-        AB: 'bg-rose-500',
-        nAB: 'bg-amber-500',
-        AnB: 'bg-sky-400',
-        nAnB: 'bg-slate-300',
-      };
-
-      const titleMap = {
-        AB: 'Phần tử thuộc A ∩ B',
-        nAB: 'Phần tử thuộc Ā ∩ B',
-        AnB: 'Phần tử thuộc A ∩ B̄',
-        nAnB: 'Phần tử thuộc Ā ∩ B̄',
-      };
-
-      const cellHeightClass = N <= 200 ? 'h-3.5 sm:h-4' : 'h-2 sm:h-2.5';
-
-      // Tạo các phần tử DOM một lần bằng DocumentFragment để tối ưu hiệu năng
-      const frag = document.createDocumentFragment();
-      for (let i = 0; i < N; i++) {
-        const type = gridData[i];
-        const cell = document.createElement('div');
-        cell.className = `icon-cell ${cellHeightClass} ${colorMap[type]}`;
-        cell.dataset.type = type;
-        cell.title = titleMap[type];
-        frag.appendChild(cell);
-      }
-
-      container.innerHTML = '';
-      container.appendChild(frag);
-      applyConditionVisuals();
+      document.getElementById('repStatusTag').textContent = appState.conditionBActive
+        ? 'Không gian mẫu thu hẹp về B'
+        : 'Không gian mẫu đầy đủ Ω';
     }
 
     /**
-     * Cập nhật hiệu ứng làm mờ / nổi bật đồng bộ trên cả 3 biểu diễn
-     * khi giáo viên chuyển đổi chế độ Thu hẹp không gian mẫu (Ω, B, hoặc A)
+     * Render Cách 1: Biểu đồ khối diện tích tỉ lệ (SVG Mosaic Area Chart)
      */
-    function applyConditionVisuals() {
-      const mode = state.condMode;
+    function renderAreaChart(metrics) {
+      const svg = document.getElementById('areaChartSvg');
+      const W = 540;
+      const H = 260;
+      const padL = 12;
+      const padR = 12;
+      const padT = 26;
+      const padB = 12;
+      const innerW = W - padL - padR;
+      const innerH = H - padT - padB;
 
-      // 1. Cập nhật trạng thái nút chọn điều kiện bên cột trái
-      document.querySelectorAll('.cond-btn').forEach((btn) => {
-        const btnMode = btn.dataset.mode;
-        btn.className = 'cond-btn w-full text-left p-3 rounded-xl transition ';
-        if (btnMode === mode) {
-          if (mode === 'all') {
-            btn.className += 'border-2 border-slate-800 bg-slate-900 text-white shadow-sm';
-            btn.querySelector('p').className = 'text-xs text-slate-300 mt-1';
-          } else if (mode === 'condB') {
-            btn.className += 'border-2 border-amber-500 bg-amber-50 text-amber-950 shadow-sm';
-            btn.querySelector('p').className = 'text-xs text-amber-900 mt-1';
-          } else {
-            btn.className += 'border-2 border-rose-500 bg-rose-50 text-rose-950 shadow-sm';
-            btn.querySelector('p').className = 'text-xs text-rose-900 mt-1';
+      // Tính chiều rộng cột có ngưỡng tối thiểu dễ đọc khi P(A) nhỏ (ví dụ 2%)
+      const minColRatio = appState.modelCount === 2 ? 0.22 : 0.18;
+      const rawWeights = metrics.rows.map((r) => Math.max(minColRatio, r.pAi));
+      const sumWeights = rawWeights.reduce((a, b) => a + b, 0);
+      const colWidths = rawWeights.map((w) => (w / sumWeights) * innerW);
+
+      let curX = padL;
+      let svgHtml = '';
+      const gap = 4;
+
+      metrics.rows.forEach((r, idx) => {
+        const cw = colWidths[idx] - (idx < metrics.rows.length - 1 ? gap : 0);
+
+        // Chiều cao phần B và B̄ trong cột (có ngưỡng tối thiểu để chữ không bị đè)
+        let ratioB = r.pBgivenAi;
+        if (ratioB > 0 && ratioB < 0.2) ratioB = 0.2;
+        if (ratioB < 1 && ratioB > 0.8) ratioB = 0.8;
+
+        const hB = ratioB * (innerH - gap);
+        const hNotB = (1 - ratioB) * (innerH - gap);
+
+        // Nhãn cột phía trên
+        svgHtml += `
+          <text x="${curX + cw / 2}" y="17" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">
+            ${r.code} (${fmtNum(r.nAi)})
+          </text>
+        `;
+
+        // Khối B (nằm trên, nổi bật khi kích hoạt điều kiện B)
+        const strokeB = appState.conditionBActive ? '#0f2557' : '#ffffff';
+        const strokeWidthB = appState.conditionBActive ? '2.5' : '1';
+        if (hB > 2) {
+          svgHtml += `
+            <g class="area-block" style="opacity: 1;">
+              <rect x="${curX}" y="${padT}" width="${cw}" height="${hB}" rx="6"
+                    fill="${r.colorB}" stroke="${strokeB}" stroke-width="${strokeWidthB}" />
+              <text x="${curX + cw / 2}" y="${padT + hB / 2 - 4}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#ffffff">
+                ${r.code} ∩ B
+              </text>
+              <text x="${curX + cw / 2}" y="${padT + hB / 2 + 13}" text-anchor="middle" font-size="13.5" font-weight="800" fill="#ffffff">
+                ${fmtNum(r.nAiB)}
+              </text>
+            </g>
+          `;
+        }
+
+        // Khối B̄ (nằm dưới, mờ đi khi kích hoạt điều kiện B)
+        const opNotB = appState.conditionBActive ? '0.18' : '1';
+        const textNotBColor = r.colorNotB === '#cbd5e1' || r.colorNotB === '#fde68a' || r.colorNotB === '#99f6e4' ? '#1e293b' : '#0f172a';
+        if (hNotB > 2) {
+          svgHtml += `
+            <g class="area-block" style="opacity: ${opNotB};">
+              <rect x="${curX}" y="${padT + hB + gap}" width="${cw}" height="${hNotB}" rx="6"
+                    fill="${r.colorNotB}" />
+              <text x="${curX + cw / 2}" y="${padT + hB + gap + hNotB / 2 - 4}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${textNotBColor}">
+                ${r.code} ∩ B̄
+              </text>
+              <text x="${curX + cw / 2}" y="${padT + hB + gap + hNotB / 2 + 13}" text-anchor="middle" font-size="13.5" font-weight="800" fill="${textNotBColor}">
+                ${fmtNum(r.nAiNotB)}
+              </text>
+            </g>
+          `;
+        }
+
+        curX += cw + gap;
+      });
+
+      svg.innerHTML = svgHtml;
+
+      // Chú thích phía dưới biểu đồ khối
+      const legendEl = document.getElementById('areaLegend');
+      legendEl.innerHTML = metrics.rows
+        .map(
+          (r) => `
+          <span class="legend-item">
+            <span class="legend-swatch" style="background:${r.colorB};"></span>
+            <strong>${r.code} ∩ B:</strong> ${fmtNum(r.nAiB)}
+          </span>
+          <span class="legend-item" style="opacity:${appState.conditionBActive ? '0.35' : '1'};">
+            <span class="legend-swatch" style="background:${r.colorNotB};"></span>
+            <span>${r.code} ∩ B̄:</span> ${fmtNum(r.nAiNotB)}
+          </span>
+        `
+        )
+        .join('');
+    }
+
+    /**
+     * Render Cách 2: Bảng tần số hai chiều (2x2 hoặc 3x2, Cột B và Cột B̄)
+     */
+    function renderFrequencyTable(metrics) {
+      const tableTitle = document.getElementById('tableCardTitle');
+      tableTitle.textContent =
+        appState.modelCount === 2 ? 'Bảng tần số hai chiều (2 × 2)' : 'Bảng tần số hai chiều (3 × 2)';
+
+      const colBClass = appState.conditionBActive ? 'col-b-highlight' : '';
+      const colNotBClass = appState.conditionBActive ? 'col-notb-dimmed' : '';
+
+      const bodyRowsHtml = metrics.rows
+        .map(
+          (r) => `
+          <tr>
+            <td class="row-header">${r.name}</td>
+            <td class="${colBClass}">${fmtNum(r.nAiB)}</td>
+            <td class="${colNotBClass}">${fmtNum(r.nAiNotB)}</td>
+            <td style="font-weight:700;">${fmtNum(r.nAi)}</td>
+          </tr>
+        `
+        )
+        .join('');
+
+      document.getElementById('freqTable').innerHTML = `
+        <thead>
+          <tr>
+            <th style="text-align:left;">Biến cố</th>
+            <th class="${colBClass}">${appState.labelB}</th>
+            <th class="${colNotBClass}">${appState.labelNotB}</th>
+            <th>Tổng hàng</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${bodyRowsHtml}
+          <tr class="total-row">
+            <td class="row-header">Tổng cột</td>
+            <td class="${colBClass}">${fmtNum(metrics.nB)}</td>
+            <td class="${colNotBClass}">${fmtNum(metrics.nNotB)}</td>
+            <td style="color: var(--navy-800);">${fmtNum(metrics.N)}</td>
+          </tr>
+        </tbody>
+      `;
+    }
+
+    /**
+     * Render Cách 3: Sơ đồ hình cây tần số tự nhiên (SVG động cho 2 hoặc 3 nhánh)
+     */
+    function renderTreeDiagram(metrics) {
+      const svg = document.getElementById('treeSvg');
+      const count = metrics.rows.length;
+      const H = count === 2 ? 270 : 340;
+      svg.setAttribute('viewBox', `0 0 920 ${H}`);
+
+      const rootY = H / 2;
+      const midX = 330;
+      const leafX = 650;
+
+      // Tọa độ Y của các nút tầng 1
+      const midYs = count === 2 ? [75, 195] : [62, 170, 278];
+      const leafOffset = count === 2 ? 32 : 24;
+
+      const dimOp = appState.conditionBActive ? '0.18' : '1';
+      let html = '';
+
+      // Vẽ các nhánh từ gốc N -> A_i -> (B, B̄)
+      metrics.rows.forEach((r, idx) => {
+        const my = midYs[idx];
+        const yB = my - leafOffset;
+        const yNotB = my + leafOffset;
+
+        // Nhánh tầng 1: Gốc -> A_i
+        html += `
+          <g class="tree-node-group">
+            <path d="M 155 ${rootY} C 230 ${rootY}, 250 ${my}, ${midX} ${my}" fill="none" stroke="${r.colorB}" stroke-width="2.4" />
+            <rect x="202" y="${(rootY + my) / 2 - 11}" width="84" height="21" rx="6" fill="#ffffff" stroke="#cbd5e1" />
+            <text x="244" y="${(rootY + my) / 2 + 3}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#334155">
+              P(${r.code}) = ${fmtNum(r.prior)}%
+            </text>
+          </g>
+        `;
+
+        // Nhánh tầng 2 lên: A_i -> A_i ∩ B (Luôn sáng rõ)
+        html += `
+          <g class="tree-node-group" style="opacity: 1;">
+            <path d="M ${midX + 145} ${my} C ${midX + 215} ${my}, ${leafX - 65} ${yB}, ${leafX} ${yB}" fill="none" stroke="${r.colorB}" stroke-width="2.6" />
+            <rect x="${midX + 188}" y="${yB - 11}" width="96" height="20" rx="6" fill="#ffffff" stroke="${r.colorB}" />
+            <text x="${midX + 236}" y="${yB + 3}" text-anchor="middle" font-size="11" font-weight="700" fill="${r.colorB}">
+              P(B|${r.code}) = ${fmtNum(r.condB)}%
+            </text>
+
+            <!-- Nút lá B -->
+            <rect x="${leafX}" y="${yB - 19}" width="245" height="38" rx="9" fill="#ffffff" stroke="${r.colorB}" stroke-width="${appState.conditionBActive ? '2.5' : '1.6'}" />
+            <text x="${leafX + 12}" y="${yB + 4}" font-size="12" font-weight="700" fill="#0f172a">${r.code} ∩ B</text>
+            <text x="${leafX + 233}" y="${yB + 4}" text-anchor="end" font-size="13" font-weight="800" fill="${r.colorB}">
+              ${fmtNum(r.nAiB)} phần tử
+            </text>
+          </g>
+        `;
+
+        // Nhánh tầng 2 xuống: A_i -> A_i ∩ B̄ (Làm mờ khi kích hoạt điều kiện B)
+        html += `
+          <g class="tree-node-group" style="opacity: ${dimOp};">
+            <path d="M ${midX + 145} ${my} C ${midX + 215} ${my}, ${leafX - 65} ${yNotB}, ${leafX} ${yNotB}" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="4 3" />
+            <rect x="${midX + 188}" y="${yNotB - 10}" width="96" height="20" rx="6" fill="#f8fafc" stroke="#cbd5e1" />
+            <text x="${midX + 236}" y="${yNotB + 4}" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">
+              P(B̄|${r.code}) = ${fmtNum(100 - r.condB)}%
+            </text>
+
+            <!-- Nút lá B̄ -->
+            <rect x="${leafX}" y="${yNotB - 18}" width="245" height="36" rx="9" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.4" />
+            <text x="${leafX + 12}" y="${yNotB + 4}" font-size="12" font-weight="600" fill="#475569">${r.code} ∩ B̄</text>
+            <text x="${leafX + 233}" y="${yNotB + 4}" text-anchor="end" font-size="12.5" font-weight="700" fill="#334155">
+              ${fmtNum(r.nAiNotB)} phần tử
+            </text>
+          </g>
+        `;
+
+        // Nút trung gian A_i
+        html += `
+          <g class="tree-node-group">
+            <rect x="${midX}" y="${my - 22}" width="145" height="44" rx="10" fill="#ffffff" stroke="${r.colorB}" stroke-width="2" />
+            <text x="${midX + 72.5}" y="${my - 4}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${r.colorB}">
+              Biến cố ${r.code}
+            </text>
+            <text x="${midX + 72.5}" y="${my + 14}" text-anchor="middle" font-size="13" font-weight="800" fill="#0f172a">
+              n(${r.code}) = ${fmtNum(r.nAi)}
+            </text>
+          </g>
+        `;
+      });
+
+      // Nút gốc Ω
+      html += `
+        <g>
+          <rect x="20" y="${rootY - 26}" width="135" height="52" rx="12" fill="#1e3a8a" />
+          <text x="87.5" y="${rootY - 5}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#bfdbfe">Mẫu giả định Ω</text>
+          <text x="87.5" y="${rootY + 15}" text-anchor="middle" font-size="14" font-weight="800" fill="#ffffff">N = ${fmtNum(metrics.N)}</text>
+        </g>
+      `;
+
+      svg.innerHTML = html;
+    }
+
+    /**
+     * Render Khu vực 3: Đối chiếu 2 cột từ Tần số tự nhiên sang Công thức Xác suất
+     */
+    function renderSection3(metrics) {
+      const natEl = document.getElementById('naturalCalcContainer');
+      const formEl = document.getElementById('formalFormulaContainer');
+
+      // Cột trái: Tính theo số đếm Tần số tự nhiên
+      const sumTermsText = metrics.rows.map((r) => fmtNum(r.nAiB)).join(' + ');
+      const sumSymbolsText = metrics.rows.map((r) => `n(${r.code} ∩ B)`).join(' + ');
+
+      const bayesNaturalCards = metrics.rows
+        .map(
+          (r) => `
+          <div class="formula-card">
+            <div class="formula-caption">Xác suất hậu nghiệm P(${r.code}|B) từ số đếm</div>
+            <div class="formula-line">
+              <span>P(${r.code}|B) =</span>
+              <span class="frac">
+                <span>n(${r.code} ∩ B)</span>
+                <span>n(B)</span>
+              </span>
+              <span>=</span>
+              <span class="frac">
+                <span>${fmtNum(r.nAiB)}</span>
+                <span>${fmtNum(metrics.nB)}</span>
+              </span>
+              <span>≈</span>
+              <span class="result-pill">${fmtNum(r.pAigivenB * 100, 2)}%</span>
+            </div>
+          </div>
+        `
+        )
+        .join('');
+
+      natEl.innerHTML = `
+        <div class="formula-card">
+          <div class="formula-caption">Tổng số phần tử thuộc không gian mẫu thu hẹp B</div>
+          <div class="formula-line">
+            <span>n(B) = ${sumSymbolsText}</span>
+          </div>
+          <div class="formula-line">
+            <span>n(B) = ${sumTermsText} =</span>
+            <span class="result-pill">${fmtNum(metrics.nB)} phần tử</span>
+          </div>
+        </div>
+        ${bayesNaturalCards}
+      `;
+
+      // Cột phải: Khái quát hóa Công thức Xác suất toàn phần & Công thức Bayes
+      const totalProbSym = metrics.rows.map((r) => `P(${r.code})·P(B|${r.code})`).join(' + ');
+      const totalProbVal = metrics.rows
+        .map((r) => `${fmtNum(r.pAi, 3)}·${fmtNum(r.pBgivenAi, 3)}`)
+        .join(' + ');
+
+      const bayesFormalCards = metrics.rows
+        .map(
+          (r) => `
+          <div class="formula-card">
+            <div class="formula-caption">Công thức Bayes cho biến cố ${r.code}</div>
+            <div class="formula-line">
+              <span>P(${r.code}|B) =</span>
+              <span class="frac">
+                <span>P(${r.code}) · P(B|${r.code})</span>
+                <span>P(B)</span>
+              </span>
+              <span>=</span>
+              <span class="frac">
+                <span>${fmtNum(r.pAiB, 4)}</span>
+                <span>${fmtNum(metrics.pB, 4)}</span>
+              </span>
+              <span>≈</span>
+              <span class="result-pill navy">${fmtNum(r.pAigivenB * 100, 2)}%</span>
+            </div>
+          </div>
+        `
+        )
+        .join('');
+
+      formEl.innerHTML = `
+        <div class="formula-card">
+          <div class="formula-caption">Công thức xác suất toàn phần P(B) = n(B) / N</div>
+          <div class="formula-line">
+            <span>P(B) = ${totalProbSym}</span>
+          </div>
+          <div class="formula-line">
+            <span>P(B) = ${totalProbVal} =</span>
+            <span class="result-pill navy">${fmtNum(metrics.pB, 4)} (${fmtNum(metrics.pB * 100, 2)}%)</span>
+          </div>
+        </div>
+        ${bayesFormalCards}
+      `;
+    }
+
+    /**
+     * Cập nhật nhanh các biểu diễn động khi kéo thanh trượt (không làm mất tiêu điểm thanh trượt)
+     */
+    function updateDynamicViews() {
+      // Cập nhật nhãn phần trăm ngay trên thẻ thanh trượt đang kéo
+      if (appState.modelCount === 2) {
+        const badges = document.querySelectorAll('#slidersContainer .slider-val-badge');
+        if (badges.length === 3) {
+          badges[0].textContent = `${fmtNum(appState.events[0].prior)}% / ${fmtNum(appState.events[1].prior)}%`;
+          badges[1].textContent = `${fmtNum(appState.events[0].condB)}%`;
+          badges[2].textContent = `${fmtNum(appState.events[1].condB)}%`;
+        }
+      } else {
+        const items = document.querySelectorAll('#slidersContainer .slider-item');
+        items.forEach((item, idx) => {
+          const ev = appState.events[idx];
+          item.querySelector('.slider-label-row span:first-child').textContent = `P(${ev.code}) = ${fmtNum(ev.prior)}% • P(B|${ev.code})`;
+          item.querySelector('.slider-val-badge').textContent = `${fmtNum(ev.condB)}%`;
+          if (idx === 2) {
+            item.querySelector('div:last-child').textContent = `P(A₃) = 100% − P(A₁) − P(A₂) = ${fmtNum(ev.prior)}%`;
           }
-        } else {
-          btn.className += 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-800';
-          btn.querySelector('p').className = 'text-xs text-slate-600 mt-1';
-        }
-      });
-
-      // 2. Cập nhật Lưới không gian mẫu (Icon Array) & Chú thích
-      const cells = document.querySelectorAll('#iconArrayContainer .icon-cell');
-      cells.forEach((cell) => {
-        const t = cell.dataset.type;
-        let active = true;
-        if (mode === 'condB') active = t === 'AB' || t === 'nAB';
-        if (mode === 'condA') active = t === 'AB' || t === 'AnB';
-
-        cell.classList.toggle('dimmed', !active);
-        cell.classList.toggle('highlighted', active && mode !== 'all');
-      });
-
-      const statusBadge = document.getElementById('gridStatusBadge');
-      if (mode === 'all') {
-        statusBadge.textContent = 'Đang hiển thị toàn bộ Ω';
-        statusBadge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700';
-      } else if (mode === 'condB') {
-        statusBadge.textContent = 'Thu hẹp về điều kiện B';
-        statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300';
-      } else {
-        statusBadge.textContent = 'Thu hẹp về điều kiện A';
-        statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-rose-100 text-rose-900 border border-rose-300';
+        });
       }
 
-      // Làm mờ các thẻ chú thích không thuộc điều kiện
-      document.getElementById('legendAB').style.opacity = '1';
-      document.getElementById('legendnAB').style.opacity = mode === 'condA' ? '0.3' : '1';
-      document.getElementById('legendAnB').style.opacity = mode === 'condB' ? '0.3' : '1';
-      document.getElementById('legendnAnB').style.opacity = mode === 'all' ? '1' : '0.3';
-
-      // 3. Cập nhật Bảng tần số hai chiều (2x2)
-      const rowB = document.getElementById('rowB');
-      const rownB = document.getElementById('rownB');
-      const cellsColA = [
-        document.getElementById('thColA'),
-        document.getElementById('cellAB'),
-        document.getElementById('cellAnB'),
-        document.getElementById('cellTotalA'),
-      ];
-      const cellsColnA = [
-        document.getElementById('thColnA'),
-        document.getElementById('cellnAB'),
-        document.getElementById('cellnAnB'),
-        document.getElementById('cellTotalnA'),
-      ];
-
-      // Đặt lại mặc định trước khi áp trạng thái mới
-      rowB.style.opacity = '1';
-      rownB.style.opacity = '1';
-      rowB.classList.remove('ring-2', 'ring-amber-500', 'bg-amber-50');
-      cellsColA.forEach((el) => {
-        el.style.opacity = '1';
-        el.classList.remove('bg-rose-100/70');
-      });
-      cellsColnA.forEach((el) => {
-        el.style.opacity = '1';
-      });
-
-      const tableHint = document.getElementById('tablePedagogyHint');
-      if (mode === 'condB') {
-        rownB.style.opacity = '0.22';
-        rowB.classList.add('ring-2', 'ring-amber-500', 'bg-amber-50');
-        tableHint.innerHTML =
-          '<strong class="text-amber-900">Đã thu hẹp về hàng B:</strong> Toàn bộ hàng <strong>B̄</strong> bị loại bỏ. Xác suất P(A|B) chính là tỉ số giữa ô <strong>n(A∩B)</strong> và tổng hàng <strong>n(B)</strong>.';
-      } else if (mode === 'condA') {
-        cellsColnA.forEach((el) => (el.style.opacity = '0.22'));
-        cellsColA.forEach((el) => el.classList.add('bg-rose-100/70'));
-        tableHint.innerHTML =
-          '<strong class="text-rose-900">Đã thu hẹp về cột A:</strong> Toàn bộ cột <strong>Ā</strong> bị loại bỏ. Xác suất P(B|A) chính là tỉ số giữa ô <strong>n(A∩B)</strong> và tổng cột <strong>n(A)</strong>.';
-      } else {
-        tableHint.innerHTML =
-          '<strong>Cách đọc bảng:</strong> Mỗi ô biểu thị số lượng phần tử thực tế trong mẫu <span class="font-semibold">N</span>. Hãy nhấn <em>"Kích hoạt điều kiện B"</em> để quan sát sự thu hẹp không gian mẫu.';
-      }
-
-      // 4. Cập nhật Sơ đồ hình cây SVG
-      const dimOpacity = 0.16;
-      const setTreeOpacity = (id, isVisible) => {
-        const el = document.getElementById(id);
-        if (el) el.style.opacity = isVisible ? '1' : String(dimOpacity);
-      };
-
-      if (mode === 'all') {
-        [
-          'treeBranchA',
-          'treeBranchNotA',
-          'treeBranchAB',
-          'treeBranchAnB',
-          'treeBranchnAB',
-          'treeBranchnAnB',
-          'treeNodeA',
-          'treeNodeNotA',
-          'treeLeafAB',
-          'treeLeafAnB',
-          'treeLeaftnAB',
-          'treeLeafnAnB',
-        ].forEach((id) => setTreeOpacity(id, true));
-      } else if (mode === 'condB') {
-        setTreeOpacity('treeBranchA', true);
-        setTreeOpacity('treeBranchNotA', true);
-        setTreeOpacity('treeNodeA', true);
-        setTreeOpacity('treeNodeNotA', true);
-        setTreeOpacity('treeBranchAB', true);
-        setTreeOpacity('treeLeafAB', true);
-        setTreeOpacity('treeBranchnAB', true);
-        setTreeOpacity('treeLeaftnAB', true);
-        // Làm mờ các nhánh dẫn tới B̄
-        setTreeOpacity('treeBranchAnB', false);
-        setTreeOpacity('treeLeafAnB', false);
-        setTreeOpacity('treeBranchnAnB', false);
-        setTreeOpacity('treeLeafnAnB', false);
-      } else if (mode === 'condA') {
-        setTreeOpacity('treeBranchA', true);
-        setTreeOpacity('treeNodeA', true);
-        setTreeOpacity('treeBranchAB', true);
-        setTreeOpacity('treeLeafAB', true);
-        setTreeOpacity('treeBranchAnB', true);
-        setTreeOpacity('treeLeafAnB', true);
-        // Làm mờ toàn bộ nhánh Ā
-        setTreeOpacity('treeBranchNotA', false);
-        setTreeOpacity('treeNodeNotA', false);
-        setTreeOpacity('treeBranchnAB', false);
-        setTreeOpacity('treeLeaftnAB', false);
-        setTreeOpacity('treeBranchnAnB', false);
-        setTreeOpacity('treeLeafnAnB', false);
-      }
+      const metrics = calculateMetrics();
+      renderAreaChart(metrics);
+      renderFrequencyTable(metrics);
+      renderTreeDiagram(metrics);
+      renderSection3(metrics);
     }
 
     /**
-     * Cập nhật toàn bộ giao diện văn bản, bảng số liệu, sơ đồ SVG và công thức toán học
+     * Render toàn bộ ứng dụng
      */
-    function updateAllUI() {
-      const m = computeModel();
-
-      // Cập nhật hiển thị tham số cột trái
-      document.getElementById('displayN').textContent = `${m.N} phần tử`;
-      document.getElementById('badgeTotalN').textContent = `N = ${m.N}`;
-      document.getElementById('badgeCountB').textContent = `n(B) = ${fmt(m.nB)}`;
-      document.getElementById('badgeCountA').textContent = `n(A) = ${fmt(m.nA)}`;
-
-      document.querySelectorAll('.n-btn').forEach((btn) => {
-        const isSelected = Number(btn.dataset.n) === m.N;
-        btn.className = isSelected
-          ? 'n-btn py-2 rounded-xl text-xs sm:text-sm font-bold border-2 border-blue-600 bg-blue-50 text-blue-700 transition'
-          : 'n-btn py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition';
-      });
-
-      // Cập nhật nhãn Lưới không gian mẫu & chú thích
-      document.getElementById('gridLabelA').textContent = fmt(m.nA);
-      document.getElementById('gridLabelnA').textContent = fmt(m.nnA);
-      document.getElementById('countAB').textContent = fmt(m.nAB);
-      document.getElementById('countnAB').textContent = fmt(m.nnAB);
-      document.getElementById('countAnB').textContent = fmt(m.nAnB);
-      document.getElementById('countnAnB').textContent = fmt(m.nnAnB);
-
-      renderIconArray(m);
-
-      // Cập nhật Bảng tần số hai chiều (2x2)
-      document.getElementById('cellAB').textContent = fmt(m.nAB);
-      document.getElementById('cellnAB').textContent = fmt(m.nnAB);
-      document.getElementById('cellTotalB').textContent = fmt(m.nB);
-      document.getElementById('cellAnB').textContent = fmt(m.nAnB);
-      document.getElementById('cellnAnB').textContent = fmt(m.nnAnB);
-      document.getElementById('cellTotalnB').textContent = fmt(m.nnB);
-      document.getElementById('cellTotalA').textContent = fmt(m.nA);
-      document.getElementById('cellTotalnA').textContent = fmt(m.nnA);
-      document.getElementById('cellGrandTotal').textContent = m.N;
-
-      // Cập nhật Sơ đồ hình cây SVG
-      document.getElementById('svgNodeN').textContent = `N = ${m.N}`;
-      document.getElementById('svgProbA').textContent = `P(A) = ${fmt(state.pA)}%`;
-      document.getElementById('svgProbNotA').textContent = `P(Ā) = ${fmt(100 - state.pA)}%`;
-      document.getElementById('svgNodeCountA').textContent = `n(A) = ${fmt(m.nA)}`;
-      document.getElementById('svgNodeCountNotA').textContent = `n(Ā) = ${fmt(m.nnA)}`;
-
-      document.getElementById('svgProbBgivenA').textContent = `P(B|A) = ${fmt(state.pBA)}%`;
-      document.getElementById('svgProbnBgivenA').textContent = `P(B̄|A) = ${fmt(100 - state.pBA)}%`;
-      document.getElementById('svgProbBgivenNotA').textContent = `P(B|Ā) = ${fmt(state.pBnA)}%`;
-      document.getElementById('svgProbnBgivenNotA').textContent = `P(B̄|Ā) = ${fmt(100 - state.pBnA)}%`;
-
-      document.getElementById('svgLeafAB').textContent = `${fmt(m.nAB)} phần tử`;
-      document.getElementById('svgLeafAnB').textContent = `${fmt(m.nAnB)} phần tử`;
-      document.getElementById('svgLeafnAB').textContent = `${fmt(m.nnAB)} phần tử`;
-      document.getElementById('svgLeafnAnB').textContent = `${fmt(m.nnAnB)} phần tử`;
-
-      document.getElementById('svgLeafProbAB').textContent = `P(A ∩ B) = ${fmt(m.pAB * 100, 2)}%`;
-      document.getElementById('svgLeafProbAnB').textContent = `P(A ∩ B̄) = ${fmt(m.pAnB * 100, 2)}%`;
-      document.getElementById('svgLeafProbnAB').textContent = `P(Ā ∩ B) = ${fmt(m.pnAB * 100, 2)}%`;
-      document.getElementById('svgLeafProbnAnB').textContent = `P(Ā ∩ B̄) = ${fmt(m.pnAnB * 100, 2)}%`;
-
-      // Cập nhật Cầu nối đại số (Bước 3)
-      document.getElementById('hintCountB').textContent = fmt(m.nB);
-      document.getElementById('hintCountAB').textContent = fmt(m.nAB);
-
-      document.getElementById('f1Num').textContent = fmt(m.nAB);
-      document.getElementById('f1Den').textContent = `${fmt(m.nAB)} + ${fmt(m.nnAB)}`;
-
-      document.getElementById('f2Num').textContent = fmt(m.pAB, 4);
-      document.getElementById('f2Den').textContent = fmt(m.pB, 4);
-      document.getElementById('f2N').textContent = m.N;
-
-      const pAgivenBPercent = m.pAgivenB !== null ? `${fmt(m.pAgivenB * 100, 2)}%` : 'Không xác định';
-      const pAgivenBDec = m.pAgivenB !== null ? `${fmt(m.pAgivenB, 4)} (${fmt(m.pAgivenB * 100, 2)}%)` : 'Không xác định (n(B) = 0)';
-      const pBgivenAPercent = m.pBgivenA !== null ? `${fmt(m.pBgivenA * 100, 2)}%` : 'Không xác định';
-
-      document.getElementById('f1Res').textContent = pAgivenBPercent;
-      document.getElementById('f3Res').textContent = pAgivenBDec;
-
-      // Cập nhật Hộp đối chiếu P(A|B) vs P(B|A)
-      document.getElementById('compareValAB').textContent = pAgivenBPercent;
-      document.getElementById('compareDescAB').innerHTML =
-        `Trong <strong>${fmt(m.nB)}</strong> trường hợp xảy ra <strong>B</strong>, chỉ có <strong>${fmt(m.nAB)}</strong> trường hợp thuộc <strong>A</strong> (mẫu số là n(B)).`;
-
-      document.getElementById('compareValBA').textContent = pBgivenAPercent;
-      document.getElementById('compareDescBA').innerHTML =
-        `Trong <strong>${fmt(m.nA)}</strong> trường hợp thuộc <strong>A</strong>, có <strong>${fmt(m.nAB)}</strong> trường hợp xảy ra <strong>B</strong> (mẫu số là n(A)).`;
+    function renderAll() {
+      renderSection1();
+      const metrics = calculateMetrics();
+      renderAreaChart(metrics);
+      renderFrequencyTable(metrics);
+      renderTreeDiagram(metrics);
+      renderSection3(metrics);
     }
 
     /**
-     * Nạp một trong 3 tình huống bài toán mẫu
-     */
-    function loadPreset(presetKey) {
-      const sc = SCENARIOS[presetKey];
-      if (!sc) return;
-
-      state.preset = presetKey;
-      state.N = sc.N;
-      state.pA = sc.pA;
-      state.pBA = sc.pBA;
-      state.pBnA = sc.pBnA;
-      state.condMode = 'all';
-
-      // Cập nhật giá trị lên các ô nhập và thanh trượt
-      document.getElementById('sliderPA').value = sc.pA;
-      document.getElementById('inputPA').value = sc.pA;
-      document.getElementById('sliderPBA').value = sc.pBA;
-      document.getElementById('inputPBA').value = sc.pBA;
-      document.getElementById('sliderPBnA').value = sc.pBnA;
-      document.getElementById('inputPBnA').value = sc.pBnA;
-
-      // Cập nhật nội dung bài toán trên biểu ngữ
-      document.getElementById('scenarioTitle').textContent = sc.title;
-      document.getElementById('scenarioDescription').innerHTML = sc.description;
-      document.getElementById('labelEventA').textContent = sc.eventA;
-      document.getElementById('labelEventB').textContent = sc.eventB;
-
-      // Cập nhật trạng thái nổi bật của nút bài toán
-      document.querySelectorAll('.preset-btn').forEach((btn) => {
-        const active = btn.dataset.preset === presetKey;
-        btn.className = active
-          ? 'preset-btn text-left p-3 rounded-xl border-2 border-blue-600 bg-blue-50/70 transition'
-          : 'preset-btn text-left p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition';
-        btn.querySelector('div:first-child').className = active
-          ? 'font-bold text-sm text-blue-950'
-          : 'font-bold text-sm text-slate-800';
-      });
-
-      updateAllUI();
-    }
-
-    /**
-     * Chuyển sang nhãn tùy chỉnh khi giáo viên tự kéo thanh trượt thay đổi thông số
-     */
-    function markCustomScenario() {
-      document.querySelectorAll('.preset-btn').forEach((btn) => {
-        btn.className = 'preset-btn text-left p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition';
-        btn.querySelector('div:first-child').className = 'font-bold text-sm text-slate-800';
-      });
-      document.getElementById('scenarioTitle').textContent = 'Tình huống tùy chỉnh thông số (Khám phá mở)';
-      document.getElementById('scenarioDescription').innerHTML =
-        `Đang mô phỏng mẫu giả định <strong class="text-blue-700">N = ${state.N}</strong> với xác suất tiên nghiệm <strong class="text-rose-700">P(A) = ${fmt(state.pA)}%</strong>, xác suất điều kiện <strong class="text-emerald-700">P(B|A) = ${fmt(state.pBA)}%</strong> và <strong class="text-amber-700">P(B|Ā) = ${fmt(state.pBnA)}%</strong>. Sử dụng bộ nút thu hẹp không gian mẫu để kiểm chứng công thức Bayes.`;
-    }
-
-    /**
-     * Khởi tạo toàn bộ sự kiện tương tác sau khi DOM sẵn sàng
+     * Gắn các sự kiện điều khiển cố định khi trang tải xong
      */
     window.addEventListener('DOMContentLoaded', () => {
-      // Sự kiện chọn 3 bài toán mẫu
-      document.querySelectorAll('.preset-btn').forEach((btn) => {
-        btn.addEventListener('click', () => loadPreset(btn.dataset.preset));
-      });
-
-      // Sự kiện chọn chế độ Thu hẹp không gian mẫu
-      document.querySelectorAll('.cond-btn').forEach((btn) => {
+      // Chọn mô hình 2 biến cố hoặc 3 biến cố
+      document.querySelectorAll('.seg-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
-          state.condMode = btn.dataset.mode;
-          applyConditionVisuals();
+          const model = Number(btn.dataset.model);
+          appState.conditionBActive = false;
+          applyPreset(model, 0);
         });
       });
 
-      // Sự kiện chọn nhanh từ hộp đối chiếu P(A|B) và P(B|A)
-      document.getElementById('quickCompareAB').addEventListener('click', () => {
-        state.condMode = 'condB';
-        applyConditionVisuals();
-      });
-      document.getElementById('quickCompareBA').addEventListener('click', () => {
-        state.condMode = 'condA';
-        applyConditionVisuals();
-      });
-
-      // Sự kiện chọn quy mô mẫu N
-      document.querySelectorAll('.n-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          state.N = Number(btn.dataset.n);
-          markCustomScenario();
-          updateAllUI();
+      // Chọn quy mô mẫu N
+      document.querySelectorAll('.n-chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          appState.N = Number(chip.dataset.n);
+          renderAll();
         });
       });
 
-      // Đồng bộ hai chiều giữa thanh trượt và ô nhập số cho 3 tham số xác suất
-      const bindParam = (sliderId, inputId, stateKey, minVal, maxVal) => {
-        const slider = document.getElementById(sliderId);
-        const input = document.getElementById(inputId);
-
-        slider.addEventListener('input', () => {
-          const val = parseFloat(slider.value);
-          state[stateKey] = val;
-          input.value = val;
-          markCustomScenario();
-          updateAllUI();
-        });
-
-        input.addEventListener('change', () => {
-          let val = parseFloat(input.value);
-          if (Number.isNaN(val)) val = minVal;
-          val = Math.max(minVal, Math.min(maxVal, val));
-          state[stateKey] = val;
-          input.value = val;
-          slider.value = val;
-          markCustomScenario();
-          updateAllUI();
-        });
-      };
-
-      bindParam('sliderPA', 'inputPA', 'pA', 0.5, 95);
-      bindParam('sliderPBA', 'inputPBA', 'pBA', 0, 100);
-      bindParam('sliderPBnA', 'inputPBnA', 'pBnA', 0, 100);
-
-      // Nút Ẩn / Hiện công thức đại số (Bước 3)
-      document.getElementById('btnToggleFormula').addEventListener('click', () => {
-        state.showFormula = !state.showFormula;
-        const content = document.getElementById('formulaContent');
-        const placeholder = document.getElementById('formulaHiddenPlaceholder');
-        const label = document.getElementById('toggleFormulaText');
-
-        if (state.showFormula) {
-          content.classList.remove('hidden');
-          placeholder.classList.add('hidden');
-          label.textContent = 'Ẩn công thức đại số';
-        } else {
-          content.classList.add('hidden');
-          placeholder.classList.remove('hidden');
-          label.textContent = 'Hiện công thức đại số';
-        }
+      // Bật/tắt kích hoạt điều kiện B (Thu hẹp không gian mẫu Ω -> B)
+      document.getElementById('btnToggleConditionB').addEventListener('click', () => {
+        appState.conditionBActive = !appState.conditionBActive;
+        renderAll();
       });
 
-      // Nút Chế độ trình chiếu (phóng to chữ trên lớp học)
-      document.getElementById('btnProjectorMode').addEventListener('click', () => {
-        state.projectorMode = !state.projectorMode;
-        document.body.classList.toggle('projector-mode', state.projectorMode);
-        document.getElementById('projectorModeLabel').textContent = state.projectorMode
-          ? 'Thoát trình chiếu'
-          : 'Chế độ trình chiếu';
-      });
-
-      // Nút đặt lại bài toán mặc định
+      // Nút khôi phục mặc định
       document.getElementById('btnReset').addEventListener('click', () => {
-        loadPreset('medical');
+        appState.conditionBActive = false;
+        applyPreset(2, 0);
       });
 
-      // Khởi chạy lần đầu với Bài toán 1
-      loadPreset('medical');
+      // Khởi tạo mặc định với Mô hình 2 biến cố - Bài toán 1
+      applyPreset(2, 0);
     });
   </script>
 </body>
